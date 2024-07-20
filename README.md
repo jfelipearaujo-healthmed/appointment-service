@@ -45,7 +45,7 @@ Legend:
 
 | Completed | Method | Endpoint                                              | Description                       | User Role      |
 | --------- | ------ | ----------------------------------------------------- | --------------------------------- | -------------- |
-| 💤         | POST   | `/appointments`                                       | Create an appointment             | Patient        |
+| 🚧         | POST   | `/appointments`                                       | Create an appointment             | Patient        |
 | 💤         | GET    | `/appointments`                                       | Get all appointments              | Doctor/Patient |
 | 💤         | GET    | `/appointments/{appointmentId}`                       | Get an appointment by id          | Doctor/Patient |
 | 💤         | PUT    | `/appointments/{appointmentId}`                       | Update an appointment             | Patient        |
