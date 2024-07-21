@@ -41,3 +41,13 @@ func MapFromDomain(appointment *entities.Appointment) *AppointmentResponse {
 		UpdatedAt:       appointment.UpdatedAt,
 	}
 }
+
+func MapFromDomainSlice(appointments []entities.Appointment) []*AppointmentResponse {
+	response := make([]*AppointmentResponse, len(appointments))
+
+	for i := range appointments {
+		response[i] = MapFromDomain(&appointments[i])
+	}
+
+	return response
+}

@@ -10,10 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	create_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/create_appointment"
+	list_appointments_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/list_appointments"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/config"
 	appointment_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/create_appointment"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/list_appointments"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/logger"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/role"
@@ -78,6 +80,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			AppointmentRepository: appointmentRepository,
 
 			CreateAppointmentUseCase: create_appointment_uc.NewUseCase(appointmentRepository, config.ApiConfig.Location),
+			ListAppointmentsUseCase:  list_appointments_uc.NewUseCase(appointmentRepository),
 		},
 	}, nil
 }
@@ -115,6 +118,8 @@ func (s *Server) addHealthCheckRoutes(e *echo.Echo) {
 
 func (s *Server) addAppointmentRoutes(g *echo.Group) {
 	createAppointmentHandler := create_appointment.NewHandler(s.CreateAppointmentUseCase)
+	listAppointmentsHandler := list_appointments.NewHandler(s.ListAppointmentsUseCase)
 
 	g.POST("/appointments", createAppointmentHandler.Handle, role.Middleware(role.Patient))
+	g.GET("/appointments", listAppointmentsHandler.Handle, role.Middleware(role.Any))
 }

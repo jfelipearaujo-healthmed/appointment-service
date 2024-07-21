@@ -9,9 +9,9 @@ import (
 )
 
 type Repository interface {
-	GetByID(ctx context.Context, userID, appointmentID uint, role role.Role) (*entities.Appointment, error)
+	GetByID(ctx context.Context, userID, appointmentID uint, roleName role.Role) (*entities.Appointment, error)
 	GetByIDsAndDateTime(ctx context.Context, scheduleID uint, patientID, doctorID uint, dateTime time.Time) (*entities.Appointment, error)
-	List(ctx context.Context, userID uint, role role.Role) ([]entities.Appointment, error)
+	List(ctx context.Context, userID uint, roleName role.Role) ([]entities.Appointment, error)
 	Create(ctx context.Context, appointment *entities.Appointment) (*entities.Appointment, error)
 	Update(ctx context.Context, userID uint, appointment *entities.Appointment) (*entities.Appointment, error)
 	Delete(ctx context.Context, userID uint, appointmentID uint) error
