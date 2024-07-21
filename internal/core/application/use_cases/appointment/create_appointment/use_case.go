@@ -7,9 +7,11 @@ import (
 
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/dto/appointment_dto"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/entities"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/events"
 	appointment_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/appointment"
 	create_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/create_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/app_error"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/topic"
 )
 
 const (
@@ -17,14 +19,19 @@ const (
 )
 
 type useCase struct {
-	repository appointment_repository_contract.Repository
-	location   *time.Location
+	topicService topic.TopicService
+	repository   appointment_repository_contract.Repository
+	location     *time.Location
 }
 
-func NewUseCase(repository appointment_repository_contract.Repository, location *time.Location) create_appointment_contract.UseCase {
+func NewUseCase(topicService topic.TopicService,
+	repository appointment_repository_contract.Repository,
+	location *time.Location,
+) create_appointment_contract.UseCase {
 	return &useCase{
-		repository: repository,
-		location:   location,
+		topicService: topicService,
+		repository:   repository,
+		location:     location,
 	}
 }
 
@@ -48,6 +55,7 @@ func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appoint
 		PatientID:  patientID,
 		DoctorID:   request.DoctorID,
 		DateTime:   finalTime,
+		Status:     entities.ScheduleInAnalysis,
 	}
 
 	existingAppointment, err := uc.repository.GetByIDsAndDateTime(ctx, request.ScheduleID, patientID, request.DoctorID, finalTime)
@@ -59,5 +67,14 @@ func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appoint
 		return nil, app_error.New(http.StatusBadRequest, "appointment already exists")
 	}
 
-	return uc.repository.Create(ctx, appointment)
+	appointment, err = uc.repository.Create(ctx, appointment)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := uc.topicService.Publish(ctx, topic.NewMessage(events.CreateAppointment, appointment)); err != nil {
+		return nil, err
+	}
+
+	return appointment, nil
 }

@@ -25,3 +25,14 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/v1/appointments/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+### Update an Appointment
+PUT {{host}}/api/v1/appointments/5
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "schedule_id": 1,
+    "doctor_id": 1,
+    "date_time": "2024-07-22 09:00"
+}
