@@ -1,5 +1,6 @@
 @host=http://localhost:5000
-@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOjEsInJvbGUiOiJwYXRpZW50IiwiZXhwIjoxNzI5Mzg4NTk3fQ.FUkh_KnBFRfPxfZvyugqjKkJhx52PDkGRDJODxCIAKU
+@tokenPatient=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOjEsInJvbGUiOiJwYXRpZW50IiwiZXhwIjoxNzI5Mzg4NTk3fQ.FUkh_KnBFRfPxfZvyugqjKkJhx52PDkGRDJODxCIAKU
+@tokenDoctor=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOjEsInJvbGUiOiJkb2N0b3IiLCJleHAiOjE3MjkzODg1OTd9.VYDSqbqR4CpjGEyEC_tNmBb8nzEQ909CmDRCevJd8lg
 
 ### Health Check
 GET {{host}}/health
@@ -8,7 +9,7 @@ Content-Type: application/json
 ### Create a Schedule
 POST {{host}}/api/v1/appointments
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{tokenPatient}}
 
 {
     "schedule_id": 1,
@@ -19,20 +20,29 @@ Authorization: Bearer {{token}}
 ### List Appointments
 GET {{host}}/api/v1/appointments
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{tokenPatient}}
 
 ### Get an Appointment by ID
 GET {{host}}/api/v1/appointments/1
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{tokenPatient}}
 
 ### Update an Appointment
 PUT {{host}}/api/v1/appointments/5
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{tokenPatient}}
 
 {
     "schedule_id": 1,
     "doctor_id": 1,
     "date_time": "2024-07-22 09:00"
+}
+
+### Confirm an Appointment
+POST {{host}}/api/v1/appointments/1/confirm
+Content-Type: application/json
+Authorization: Bearer {{tokenDoctor}}
+
+{
+    "confirmed": true
 }

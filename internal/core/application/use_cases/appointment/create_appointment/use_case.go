@@ -8,7 +8,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/dto/appointment_dto"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/entities"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/events"
-	appointment_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/appointment"
+	event_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/event"
 	create_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/create_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/app_error"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/topic"
@@ -20,12 +20,13 @@ const (
 
 type useCase struct {
 	topicService topic.TopicService
-	repository   appointment_repository_contract.Repository
+	repository   event_repository_contract.Repository
 	location     *time.Location
 }
 
-func NewUseCase(topicService topic.TopicService,
-	repository appointment_repository_contract.Repository,
+func NewUseCase(
+	topicService topic.TopicService,
+	repository event_repository_contract.Repository,
 	location *time.Location,
 ) create_appointment_contract.UseCase {
 	return &useCase{
@@ -35,7 +36,7 @@ func NewUseCase(topicService topic.TopicService,
 	}
 }
 
-func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appointment_dto.CreateAppointmentRequest) (*entities.Appointment, error) {
+func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appointment_dto.CreateAppointmentRequest) (*entities.Event, error) {
 	parsedTime, err := time.ParseInLocation(dateTimeLayout, request.DateTime, uc.location)
 	if err != nil {
 		return nil, app_error.New(http.StatusBadRequest, "unable to parse the date and time provided")
@@ -50,31 +51,34 @@ func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appoint
 		return nil, app_error.New(http.StatusBadRequest, "date and time must be in the future")
 	}
 
-	appointment := &entities.Appointment{
+	event := &entities.Event{
 		ScheduleID: request.ScheduleID,
 		PatientID:  patientID,
 		DoctorID:   request.DoctorID,
 		DateTime:   finalTime,
-		Status:     entities.ScheduleInAnalysis,
+		EventType:  events.CreateAppointment,
 	}
 
-	existingAppointment, err := uc.repository.GetByIDsAndDateTime(ctx, request.ScheduleID, patientID, request.DoctorID, finalTime)
+	existingEvent, err := uc.repository.GetByIDsAndDateTime(ctx, request.ScheduleID, patientID, request.DoctorID, finalTime)
 	if err != nil && !app_error.IsAppError(err) {
 		return nil, err
 	}
 
-	if existingAppointment != nil {
-		return nil, app_error.New(http.StatusBadRequest, "appointment already exists")
+	if existingEvent != nil {
+		return nil, app_error.New(http.StatusBadRequest, "schedule already requested")
 	}
 
-	appointment, err = uc.repository.Create(ctx, appointment)
+	messageId, err := uc.topicService.Publish(ctx, topic.NewMessage(event))
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := uc.topicService.Publish(ctx, topic.NewMessage(events.CreateAppointment, appointment)); err != nil {
+	event.MessageID = *messageId
+
+	event, err = uc.repository.Create(ctx, event)
+	if err != nil {
 		return nil, err
 	}
 
-	return appointment, nil
+	return event, nil
 }

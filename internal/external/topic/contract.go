@@ -21,13 +21,11 @@ type TopicService interface {
 type EventType string
 
 type Message struct {
-	EventType EventType   `json:"event_type"`
-	Data      interface{} `json:"data"`
+	Data interface{} `json:"data"`
 }
 
-func NewMessage(eventType EventType, data interface{}) *Message {
+func NewMessage(data interface{}) *Message {
 	return &Message{
-		EventType: eventType,
-		Data:      data,
+		Data: data,
 	}
 }

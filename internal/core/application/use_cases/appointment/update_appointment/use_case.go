@@ -9,6 +9,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/entities"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/events"
 	appointment_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/appointment"
+	event_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/event"
 	update_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/update_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/app_error"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/role"
@@ -20,20 +21,22 @@ const (
 )
 
 type useCase struct {
-	topicService topic.TopicService
-	repository   appointment_repository_contract.Repository
-	location     *time.Location
+	topicService          topic.TopicService
+	appointmentRepository appointment_repository_contract.Repository
+	eventRepository       event_repository_contract.Repository
+	location              *time.Location
 }
 
 func NewUseCase(
 	topicService topic.TopicService,
-	repository appointment_repository_contract.Repository,
+	appointmentRepository appointment_repository_contract.Repository,
+	eventRepository event_repository_contract.Repository,
 	location *time.Location,
 ) update_appointment_contract.UseCase {
 	return &useCase{
-		topicService: topicService,
-		repository:   repository,
-		location:     location,
+		topicService:          topicService,
+		appointmentRepository: appointmentRepository,
+		location:              location,
 	}
 }
 
@@ -52,7 +55,7 @@ func (uc *useCase) Execute(ctx context.Context, patientID, appointmentID uint, r
 		return app_error.New(http.StatusBadRequest, "date and time must be in the future")
 	}
 
-	appointment, err := uc.repository.GetByID(ctx, patientID, appointmentID, role.Patient)
+	appointment, err := uc.appointmentRepository.GetByID(ctx, patientID, appointmentID, role.Patient)
 	if err != nil {
 		return err
 	}
@@ -67,18 +70,35 @@ func (uc *useCase) Execute(ctx context.Context, patientID, appointmentID uint, r
 
 	appointment.Status = entities.ReScheduleInAnalysis
 
-	if _, err := uc.repository.Update(ctx, patientID, appointment); err != nil {
-		return err
-	}
-
-	reSchedule := &entities.Appointment{
+	event := &entities.Event{
 		ScheduleID: request.ScheduleID,
 		PatientID:  patientID,
 		DoctorID:   request.DoctorID,
 		DateTime:   finalTime,
+		EventType:  events.UpdateAppointment,
 	}
 
-	if _, err := uc.topicService.Publish(ctx, topic.NewMessage(events.UpdateAppointment, reSchedule)); err != nil {
+	existingEvent, err := uc.eventRepository.GetByIDsAndDateTime(ctx, request.ScheduleID, patientID, request.DoctorID, finalTime)
+	if err != nil && !app_error.IsAppError(err) {
+		return err
+	}
+
+	if existingEvent != nil {
+		return app_error.New(http.StatusBadRequest, "re-schedule already requested")
+	}
+
+	if _, err := uc.appointmentRepository.Update(ctx, patientID, appointment); err != nil {
+		return err
+	}
+
+	messageId, err := uc.topicService.Publish(ctx, topic.NewMessage(event))
+	if err != nil {
+		return err
+	}
+
+	event.MessageID = *messageId
+
+	if _, err := uc.eventRepository.Create(ctx, event); err != nil {
 		return err
 	}
 

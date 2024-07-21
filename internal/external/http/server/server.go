@@ -9,13 +9,16 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	confirm_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/confirm_appointment"
 	create_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/create_appointment"
 	get_appointment_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/get_appointment_by_id"
 	list_appointments_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/list_appointments"
 	update_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/update_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/config"
 	appointment_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/appointment"
+	event_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/event"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/confirm_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/create_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/get_appointment_by_id"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/list_appointments"
@@ -82,6 +85,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 	cache := cache.NewRedisCache(ctx, config)
 
 	appointmentRepository := appointment_repository.NewRepository(cache, dbService)
+	eventRepository := event_repository.NewRepository(dbService)
 
 	return &Server{
 		Config: config,
@@ -92,11 +96,16 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			AppointmentTopic: appointmentTopic,
 
 			AppointmentRepository: appointmentRepository,
+			EventRepository:       eventRepository,
 
-			CreateAppointmentUseCase:  create_appointment_uc.NewUseCase(appointmentTopic, appointmentRepository, config.ApiConfig.Location),
+			CreateAppointmentUseCase:  create_appointment_uc.NewUseCase(appointmentTopic, eventRepository, config.ApiConfig.Location),
 			GetAppointmentByIdUseCase: get_appointment_by_id_uc.NewUseCase(appointmentRepository),
 			ListAppointmentsUseCase:   list_appointments_uc.NewUseCase(appointmentRepository),
-			UpdateAppointmentUseCase:  update_appointment_uc.NewUseCase(appointmentTopic, appointmentRepository, config.ApiConfig.Location),
+			UpdateAppointmentUseCase: update_appointment_uc.NewUseCase(appointmentTopic,
+				appointmentRepository,
+				eventRepository,
+				config.ApiConfig.Location),
+			ConfirmAppointmentUseCase: confirm_appointment_uc.NewUseCase(appointmentRepository),
 		},
 	}, nil
 }
@@ -137,9 +146,11 @@ func (s *Server) addAppointmentRoutes(g *echo.Group) {
 	getAppointmentByIdHandler := get_appointment_by_id.NewHandler(s.GetAppointmentByIdUseCase)
 	listAppointmentsHandler := list_appointments.NewHandler(s.ListAppointmentsUseCase)
 	updateAppointmentHandler := update_appointment.NewHandler(s.UpdateAppointmentUseCase)
+	confirmAppointmentHandler := confirm_appointment.NewHandler(s.ConfirmAppointmentUseCase)
 
 	g.POST("/appointments", createAppointmentHandler.Handle, role.Middleware(role.Patient))
 	g.GET("/appointments", listAppointmentsHandler.Handle, role.Middleware(role.Any))
 	g.GET("/appointments/:appointmentId", getAppointmentByIdHandler.Handle, role.Middleware(role.Any))
 	g.PUT("/appointments/:appointmentId", updateAppointmentHandler.Handle, role.Middleware(role.Patient))
+	g.POST("/appointments/:appointmentId/confirm", confirmAppointmentHandler.Handle, role.Middleware(role.Doctor))
 }

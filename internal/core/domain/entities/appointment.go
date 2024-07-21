@@ -8,10 +8,15 @@ import (
 
 type Status string
 
+func (s Status) String() string {
+	return string(s)
+}
+
 const (
 	ScheduleInAnalysis   Status = "schedule_in_analysis"
 	ReScheduleInAnalysis Status = "re_schedule_in_analysis"
 	Confirmed            Status = "confirmed"
+	InProgress           Status = "in_progress"
 	Concluded            Status = "concluded"
 	Cancelled            Status = "cancelled"
 )
@@ -34,4 +39,6 @@ type Appointment struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+
+	EventID uint `json:"event_id"`
 }
