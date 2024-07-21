@@ -62,7 +62,14 @@ func (rp *repository) GetByIDsAndDateTime(ctx context.Context, scheduleID uint, 
 	tx := rp.dbService.Instance.WithContext(ctx)
 
 	appointment := new(entities.Appointment)
-	result := tx.Where("schedule_id = ? AND patient_id = ? AND doctor_id = ? AND date_time = ?", scheduleID, patientID, doctorID, dateTime).First(appointment)
+
+	query := tx.Where("schedule_id = ?", scheduleID)
+	query = query.Where("patient_id = ?", patientID)
+	query = query.Where("doctor_id = ?", doctorID)
+	query = query.Where("date_time = ?", dateTime)
+	query = query.Where("status != ?", entities.Cancelled)
+
+	result := query.First(appointment)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, app_error.New(http.StatusNotFound, fmt.Sprintf("appointment with schedule id %d, patient id %d, doctor id %d and date time %s not found", scheduleID, patientID, doctorID, dateTime))
@@ -103,21 +110,25 @@ func (rp *repository) Create(ctx context.Context, appointment *entities.Appointm
 }
 
 func (rp *repository) Update(ctx context.Context, userID uint, appointment *entities.Appointment) (*entities.Appointment, error) {
+	cacheKey := fmt.Sprintf(cacheKeyPrefix, appointment.ID)
+
 	tx := rp.dbService.Instance.WithContext(ctx)
 
 	if err := tx.Model(appointment).Where("patient_id = ? AND id = ?", userID, appointment.ID).Updates(appointment).Error; err != nil {
 		return nil, err
 	}
 
-	return appointment, nil
+	return cache.WithRefreshCache(ctx, rp.cache, cacheKey, ttl, appointment)
 }
 
 func (rp *repository) Delete(ctx context.Context, userID uint, appointmentID uint) error {
+	cacheKey := fmt.Sprintf(cacheKeyPrefix, appointmentID)
+
 	tx := rp.dbService.Instance.WithContext(ctx)
 
 	if err := tx.Delete(&entities.Appointment{}, "patient_id = ? AND id = ?", userID, appointmentID).Error; err != nil {
 		return err
 	}
 
-	return nil
+	return cache.WithDeleteCache(ctx, rp.cache, cacheKey)
 }

@@ -48,7 +48,7 @@ Legend:
 | ✅         | POST   | `/appointments`                                       | Create an appointment             | Patient        |
 | ✅         | GET    | `/appointments`                                       | Get all appointments              | Doctor/Patient |
 | ✅         | GET    | `/appointments/{appointmentId}`                       | Get an appointment by id          | Doctor/Patient |
-| 💤         | PUT    | `/appointments/{appointmentId}`                       | Update an appointment             | Patient        |
+| ✅         | PUT    | `/appointments/{appointmentId}`                       | Update an appointment             | Patient        |
 | 💤         | POST   | `/appointments/{appointmentId}/confirmation`          | Confirm or decline an appointment | Doctor         |
 | 💤         | POST   | `/appointments/{appointmentId}/cancel`                | Reschedule an appointment         | Doctor/Patient |
 | 💤         | POST   | `/appointments/{appointmentId}/feedback`              | Feedback an appointment           | Patient        |
