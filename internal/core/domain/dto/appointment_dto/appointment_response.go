@@ -13,6 +13,7 @@ type AppointmentResponse struct {
 	PatientID       uint       `json:"patient_id"`
 	DoctorID        uint       `json:"doctor_id"`
 	DateTime        time.Time  `json:"date_time"`
+	Status          string     `json:"status"`
 	StartedAt       *time.Time `json:"started_at"`
 	EndedAt         *time.Time `json:"ended_at"`
 	ConfirmedAt     *time.Time `json:"confirmed_at"`
@@ -31,6 +32,7 @@ func MapFromDomain(appointment *entities.Appointment) *AppointmentResponse {
 		PatientID:       appointment.PatientID,
 		DoctorID:        appointment.DoctorID,
 		DateTime:        appointment.DateTime,
+		Status:          appointment.Status.String(),
 		StartedAt:       appointment.StartedAt,
 		EndedAt:         appointment.EndedAt,
 		ConfirmedAt:     appointment.ConfirmedAt,

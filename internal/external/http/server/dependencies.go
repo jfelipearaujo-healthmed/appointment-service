@@ -2,6 +2,8 @@ package server
 
 import (
 	appointment_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/appointment"
+	event_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/event"
+	confirm_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/confirm_appointment"
 	create_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/create_appointment"
 	get_appointment_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/get_appointment_by_id"
 	list_appointments_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/list_appointments"
@@ -18,9 +20,11 @@ type Dependencies struct {
 	AppointmentTopic topic.TopicService
 
 	AppointmentRepository appointment_repository_contract.Repository
+	EventRepository       event_repository_contract.Repository
 
 	CreateAppointmentUseCase  create_appointment_contract.UseCase
 	GetAppointmentByIdUseCase get_appointment_by_id_contract.UseCase
 	ListAppointmentsUseCase   list_appointments_contract.UseCase
 	UpdateAppointmentUseCase  update_appointment_contract.UseCase
+	ConfirmAppointmentUseCase confirm_appointment_contract.UseCase
 }

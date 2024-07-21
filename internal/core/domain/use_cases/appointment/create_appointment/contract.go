@@ -8,5 +8,5 @@ import (
 )
 
 type UseCase interface {
-	Execute(ctx context.Context, patientID uint, request *appointment_dto.CreateAppointmentRequest) (*entities.Appointment, error)
+	Execute(ctx context.Context, patientID uint, request *appointment_dto.CreateAppointmentRequest) (*entities.Event, error)
 }
