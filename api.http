@@ -20,3 +20,8 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/v1/appointments
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+### Get an Appointment by ID
+GET {{host}}/api/v1/appointments/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
