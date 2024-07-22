@@ -27,6 +27,7 @@ type DatabaseConfig struct {
 type CloudConfig struct {
 	BaseEndpoint         string `env:"BASE_ENDPOINT"`
 	AppointmentTopicName string `env:"APPOINTMENT_TOPIC_NAME"`
+	FeedbackTopicName    string `env:"FEEDBACK_TOPIC_NAME"`
 }
 
 func (c *CloudConfig) IsBaseEndpointSet() bool {

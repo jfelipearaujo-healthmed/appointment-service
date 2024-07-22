@@ -46,3 +46,13 @@ Authorization: Bearer {{tokenDoctor}}
 {
     "confirmed": true
 }
+
+### Create a Feedback
+POST {{host}}/api/v1/appointments/1/feedbacks
+Content-Type: application/json
+Authorization: Bearer {{tokenPatient}}
+
+{
+    "rating": 5,
+    "comment": "Great appointment"
+}

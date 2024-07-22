@@ -14,6 +14,7 @@ import (
 	get_appointment_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/get_appointment_by_id"
 	list_appointments_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/list_appointments"
 	update_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/update_appointment"
+	create_feedback_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/create_feedback"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/config"
 	appointment_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/appointment"
 	event_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/event"
@@ -23,6 +24,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/get_appointment_by_id"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/list_appointments"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/update_appointment"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/create_feedback"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/logger"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/role"
@@ -82,6 +84,13 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 		return nil, err
 	}
 
+	feedbackTopic := topic.NewService(config.CloudConfig.FeedbackTopicName, cloudConfig)
+
+	if err := feedbackTopic.UpdateTopicArn(ctx); err != nil {
+		slog.ErrorContext(ctx, "error updating topic arn", "error", err)
+		return nil, err
+	}
+
 	cache := cache.NewRedisCache(ctx, config)
 
 	appointmentRepository := appointment_repository.NewRepository(cache, dbService)
@@ -94,6 +103,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			DbService: dbService,
 
 			AppointmentTopic: appointmentTopic,
+			FeedbackTopic:    feedbackTopic,
 
 			AppointmentRepository: appointmentRepository,
 			EventRepository:       eventRepository,
@@ -106,6 +116,8 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 				eventRepository,
 				config.ApiConfig.Location),
 			ConfirmAppointmentUseCase: confirm_appointment_uc.NewUseCase(appointmentRepository),
+
+			CreateFeedbackUseCase: create_feedback_uc.NewUseCase(feedbackTopic, appointmentRepository, eventRepository),
 		},
 	}, nil
 }
@@ -131,6 +143,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	api.Use(token.Middleware())
 	s.addAppointmentRoutes(api)
+	s.addFeedbackRoutes(api)
 
 	return e
 }
@@ -153,4 +166,10 @@ func (s *Server) addAppointmentRoutes(g *echo.Group) {
 	g.GET("/appointments/:appointmentId", getAppointmentByIdHandler.Handle, role.Middleware(role.Any))
 	g.PUT("/appointments/:appointmentId", updateAppointmentHandler.Handle, role.Middleware(role.Patient))
 	g.POST("/appointments/:appointmentId/confirm", confirmAppointmentHandler.Handle, role.Middleware(role.Doctor))
+}
+
+func (s *Server) addFeedbackRoutes(g *echo.Group) {
+	createFeedbackHandler := create_feedback.NewHandler(s.CreateFeedbackUseCase)
+
+	g.POST("/appointments/appointmentId/feedbacks", createFeedbackHandler.Handle, role.Middleware(role.Patient))
 }

@@ -8,19 +8,17 @@ import (
 )
 
 type Event struct {
-	ID uint `json:"id" gorm:"primaryKey"`
+	ID uint `json:"id,omitempty" gorm:"primaryKey"`
 
-	ScheduleID uint            `json:"schedule_id"`
-	PatientID  uint            `json:"patient_id"`
-	DoctorID   uint            `json:"doctor_id"`
-	DateTime   time.Time       `json:"date_time"`
-	MessageID  string          `json:"message_id"`
-	EventType  topic.EventType `json:"event_type"`
-	Outcome    *string         `json:"outcome"`
+	UserID    uint            `json:"user_id,omitempty"`
+	MessageID string          `json:"message_id,omitempty"`
+	EventType topic.EventType `json:"event_type,omitempty"`
+	Data      string          `json:"data,omitempty"`
+	Outcome   *string         `json:"outcome,omitempty"`
 
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	CreatedAt time.Time      `json:"created_at,omitempty"`
+	UpdatedAt time.Time      `json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 
-	Appointment *Appointment `gorm:"foreignKey:EventID"`
+	Appointment *Appointment `json:"appointment,omitempty" gorm:"foreignKey:EventID"`
 }

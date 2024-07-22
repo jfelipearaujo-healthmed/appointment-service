@@ -2,6 +2,7 @@ package create_appointment_uc
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -51,15 +52,25 @@ func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appoint
 		return nil, app_error.New(http.StatusBadRequest, "date and time must be in the future")
 	}
 
-	event := &entities.Event{
+	appointment := &entities.Appointment{
 		ScheduleID: request.ScheduleID,
 		PatientID:  patientID,
 		DoctorID:   request.DoctorID,
 		DateTime:   finalTime,
-		EventType:  events.CreateAppointment,
 	}
 
-	existingEvent, err := uc.repository.GetByIDsAndDateTime(ctx, request.ScheduleID, patientID, request.DoctorID, finalTime)
+	appointmentData, err := json.Marshal(appointment)
+	if err != nil {
+		return nil, app_error.New(http.StatusInternalServerError, "unable to marshal the appointment data")
+	}
+
+	event := &entities.Event{
+		UserID:    patientID,
+		Data:      string(appointmentData),
+		EventType: events.CreateAppointment,
+	}
+
+	existingEvent, err := uc.repository.GetByIDsAndDateTime(ctx, event)
 	if err != nil && !app_error.IsAppError(err) {
 		return nil, err
 	}
@@ -68,7 +79,7 @@ func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appoint
 		return nil, app_error.New(http.StatusBadRequest, "schedule already requested")
 	}
 
-	messageId, err := uc.topicService.Publish(ctx, topic.NewMessage(event))
+	messageId, err := uc.topicService.Publish(ctx, topic.NewMessage(event.EventType, event))
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package update_appointment_uc
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -68,17 +69,24 @@ func (uc *useCase) Execute(ctx context.Context, patientID, appointmentID uint, r
 		return app_error.New(http.StatusBadRequest, "appointment already in re-scheduling state, wait for the appointment to conclude")
 	}
 
+	appointment.ScheduleID = request.ScheduleID
+	appointment.PatientID = patientID
+	appointment.DoctorID = request.DoctorID
+	appointment.DateTime = finalTime
 	appointment.Status = entities.ReScheduleInAnalysis
 
-	event := &entities.Event{
-		ScheduleID: request.ScheduleID,
-		PatientID:  patientID,
-		DoctorID:   request.DoctorID,
-		DateTime:   finalTime,
-		EventType:  events.UpdateAppointment,
+	appointmentData, err := json.Marshal(appointment)
+	if err != nil {
+		return app_error.New(http.StatusInternalServerError, "unable to marshal the appointment data")
 	}
 
-	existingEvent, err := uc.eventRepository.GetByIDsAndDateTime(ctx, request.ScheduleID, patientID, request.DoctorID, finalTime)
+	event := &entities.Event{
+		UserID:    patientID,
+		Data:      string(appointmentData),
+		EventType: events.UpdateAppointment,
+	}
+
+	existingEvent, err := uc.eventRepository.GetByIDsAndDateTime(ctx, event)
 	if err != nil && !app_error.IsAppError(err) {
 		return err
 	}
@@ -91,7 +99,7 @@ func (uc *useCase) Execute(ctx context.Context, patientID, appointmentID uint, r
 		return err
 	}
 
-	messageId, err := uc.topicService.Publish(ctx, topic.NewMessage(event))
+	messageId, err := uc.topicService.Publish(ctx, topic.NewMessage(event.EventType, event))
 	if err != nil {
 		return err
 	}
