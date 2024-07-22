@@ -22,13 +22,13 @@ const (
 )
 
 type Appointment struct {
-	ID uint `json:"id" gorm:"primaryKey"`
+	ID uint `json:"id,omitempty" gorm:"primaryKey"`
 
-	ScheduleID      uint       `json:"schedule_id"`
-	PatientID       uint       `json:"patient_id"`
-	DoctorID        uint       `json:"doctor_id"`
-	DateTime        time.Time  `json:"date_time"`
-	Status          Status     `json:"status"`
+	ScheduleID      uint       `json:"schedule_id,omitempty"`
+	PatientID       uint       `json:"patient_id,omitempty"`
+	DoctorID        uint       `json:"doctor_id,omitempty"`
+	DateTime        time.Time  `json:"date_time,omitempty"`
+	Status          Status     `json:"status,omitempty"`
 	StartedAt       *time.Time `json:"started_at,omitempty"`
 	EndedAt         *time.Time `json:"ended_at,omitempty"`
 	ConfirmedAt     *time.Time `json:"confirmed_at,omitempty"`
@@ -36,9 +36,10 @@ type Appointment struct {
 	CancelledAt     *time.Time `json:"cancelled_at,omitempty"`
 	CancelledReason *string    `json:"cancelled_reason,omitempty"`
 
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	CreatedAt time.Time      `json:"created_at,omitempty"`
+	UpdatedAt time.Time      `json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 
-	EventID uint `json:"event_id"`
+	EventID    uint `json:"event_id,omitempty"`
+	FeedbackID uint `json:"feedback_id,omitempty"`
 }

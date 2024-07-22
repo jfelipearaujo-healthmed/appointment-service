@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/entities"
 	event_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/event"
@@ -34,21 +33,19 @@ func (rp *repository) Create(ctx context.Context, event *entities.Event) (*entit
 	return event, nil
 }
 
-func (rp *repository) GetByIDsAndDateTime(ctx context.Context, scheduleID uint, patientID uint, doctorID uint, dateTime time.Time) (*entities.Event, error) {
+func (rp *repository) GetByIDsAndDateTime(ctx context.Context, eventData *entities.Event) (*entities.Event, error) {
 	tx := rp.dbService.Instance.WithContext(ctx)
 
 	event := new(entities.Event)
 
-	query := tx.Where("schedule_id = ?", scheduleID)
-	query = query.Where("patient_id = ?", patientID)
-	query = query.Where("doctor_id = ?", doctorID)
-	query = query.Where("date_time = ?", dateTime)
+	query := tx.Where("user_id = ?", eventData.UserID)
+	query = query.Where("event_type = ?", eventData.EventType)
 	query = query.Where("outcome IS NULL")
 
 	result := query.First(event)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, app_error.New(http.StatusNotFound, fmt.Sprintf("event with schedule id %d, patient id %d, doctor id %d and date time %s not found", scheduleID, patientID, doctorID, dateTime))
+			return nil, app_error.New(http.StatusNotFound, fmt.Sprintf("event with user id %d and event type %s not found", eventData.UserID, eventData.EventType))
 		}
 
 		return nil, result.Error

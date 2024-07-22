@@ -43,6 +43,7 @@ func (svc *DbService) Connect(config *config.Config) error {
 
 	if err := conn.AutoMigrate(
 		&entities.Event{},
+		&entities.Feedback{},
 		&entities.Appointment{},
 	); err != nil {
 		return err
