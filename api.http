@@ -56,3 +56,13 @@ Authorization: Bearer {{tokenPatient}}
     "rating": 5,
     "comment": "Great appointment"
 }
+
+### List Feedbacks
+GET {{host}}/api/v1/appointments/1/feedbacks
+Content-Type: application/json
+Authorization: Bearer {{tokenPatient}}
+
+### Get a Feedback by ID
+GET {{host}}/api/v1/appointments/1/feedbacks/1
+Content-Type: application/json
+Authorization: Bearer {{tokenPatient}}

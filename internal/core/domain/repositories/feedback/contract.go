@@ -8,7 +8,7 @@ import (
 )
 
 type Repository interface {
-	GetByID(ctx context.Context, feedbackID uint) (*entities.Feedback, error)
+	GetByID(ctx context.Context, userID, appointmentID, feedbackID uint, roleName role.Role) (*entities.Feedback, error)
 	GetByAppointmentID(ctx context.Context, appointmentID uint) (*entities.Feedback, error)
 	List(ctx context.Context, userID, appointmentID uint, roleName role.Role) ([]entities.Feedback, error)
 	Create(ctx context.Context, feedback *entities.Feedback) (*entities.Feedback, error)

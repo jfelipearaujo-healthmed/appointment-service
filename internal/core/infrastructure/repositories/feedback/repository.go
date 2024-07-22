@@ -24,16 +24,22 @@ func NewRepository(dbService *persistence.DbService) feedback_repository_contrac
 	}
 }
 
-func (rp *repository) GetByID(ctx context.Context, feedbackID uint) (*entities.Feedback, error) {
+func (rp *repository) GetByID(ctx context.Context, userID, appointmentID, feedbackID uint, roleName role.Role) (*entities.Feedback, error) {
 	tx := rp.dbService.Instance.WithContext(ctx)
 
 	feedback := new(entities.Feedback)
 
-	if err := tx.Where("id = ?", feedbackID).First(feedback).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, app_error.New(http.StatusNotFound, fmt.Sprintf("feedback with id %d not found", feedbackID))
-		}
+	query := "feedbacks.id = ? AND appointments.patient_id = ? AND appointments.id = ?"
 
+	if roleName == role.Doctor {
+		query = "feedbacks.id = ? AND appointments.doctor_id = ? AND appointments.id = ?"
+	}
+
+	if err := tx.Preload("Appointment").
+		Order("feedbacks.created_at DESC").
+		Joins("JOIN appointments ON appointments.id = feedbacks.appointment_id").
+		Where(query, feedbackID, userID, appointmentID).
+		Find(&feedback).Error; err != nil {
 		return nil, err
 	}
 
