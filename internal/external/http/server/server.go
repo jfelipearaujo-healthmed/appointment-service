@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	cancel_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/cancel_appointment"
 	confirm_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/confirm_appointment"
 	create_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/create_appointment"
 	get_appointment_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/get_appointment_by_id"
@@ -21,6 +22,7 @@ import (
 	event_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/event"
 	feedback_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/feedback"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/cancel_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/confirm_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/create_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/get_appointment_by_id"
@@ -122,6 +124,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 				eventRepository,
 				config.ApiConfig.Location),
 			ConfirmAppointmentUseCase: confirm_appointment_uc.NewUseCase(appointmentRepository),
+			CancelAppointmentUseCase:  cancel_appointment_uc.NewUseCase(appointmentRepository),
 
 			CreateFeedbackUseCase: create_feedback_uc.NewUseCase(feedbackTopic, appointmentRepository, eventRepository),
 			ListFeedbacksUseCase:  list_feedbacks_uc.NewUseCase(feedbackRepository),
@@ -167,12 +170,14 @@ func (s *Server) addAppointmentRoutes(g *echo.Group) {
 	listAppointmentsHandler := list_appointments.NewHandler(s.ListAppointmentsUseCase)
 	updateAppointmentHandler := update_appointment.NewHandler(s.UpdateAppointmentUseCase)
 	confirmAppointmentHandler := confirm_appointment.NewHandler(s.ConfirmAppointmentUseCase)
+	cancelAppointmentHandler := cancel_appointment.NewHandler(s.CancelAppointmentUseCase)
 
 	g.POST("/appointments", createAppointmentHandler.Handle, role.Middleware(role.Patient))
 	g.GET("/appointments", listAppointmentsHandler.Handle, role.Middleware(role.Any))
 	g.GET("/appointments/:appointmentId", getAppointmentByIdHandler.Handle, role.Middleware(role.Any))
 	g.PUT("/appointments/:appointmentId", updateAppointmentHandler.Handle, role.Middleware(role.Patient))
 	g.POST("/appointments/:appointmentId/confirm", confirmAppointmentHandler.Handle, role.Middleware(role.Doctor))
+	g.POST("/appointments/:appointmentId/cancel", cancelAppointmentHandler.Handle, role.Middleware(role.Any))
 }
 
 func (s *Server) addFeedbackRoutes(g *echo.Group) {

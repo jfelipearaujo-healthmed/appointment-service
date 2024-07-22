@@ -50,7 +50,7 @@ Legend:
 | ✅         | GET    | `/appointments/{appointmentId}`                        | Get an appointment by id                 | Doctor/Patient |
 | ✅         | PUT    | `/appointments/{appointmentId}`                        | Update an appointment                    | Patient        |
 | ✅         | POST   | `/appointments/{appointmentId}/confirmation`           | Confirm or decline an appointment        | Doctor         |
-| 💤         | POST   | `/appointments/{appointmentId}/cancel`                 | Reschedule an appointment                | Doctor/Patient |
+| ✅         | POST   | `/appointments/{appointmentId}/cancel`                 | Reschedule an appointment                | Doctor/Patient |
 | ✅         | POST   | `/appointments/{appointmentId}/feedbacks`              | Add feedback to an appointment via event | Patient        |
 | ✅         | GET    | `/appointments/{appointmentId}/feedbacks`              | Get feedbacks                            | Doctor/Patient |
 | ✅         | GET    | `/appointments/{appointmentId}/feedbacks/{feedbackId}` | Get feedback by id                       | Doctor/Patient |

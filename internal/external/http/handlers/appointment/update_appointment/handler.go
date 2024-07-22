@@ -43,5 +43,5 @@ func (h *handler) Handle(c echo.Context) error {
 		return http_response.HandleErr(c, err)
 	}
 
-	return http_response.OK(c, appointment_dto.NewUpdateAppointmentRequested())
+	return http_response.OK(c, appointment_dto.NewAppointmentUpdateRequested())
 }

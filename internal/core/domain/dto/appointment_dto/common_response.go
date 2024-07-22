@@ -4,26 +4,26 @@ type AppointmentCommonResponse struct {
 	Message string `json:"message"`
 }
 
-func NewCreateAppointmentRequested() *AppointmentCommonResponse {
+func NewAppointmentCreateRequested() *AppointmentCommonResponse {
 	return &AppointmentCommonResponse{
-		Message: "appointment schedule created, access your appointment later to see the status",
+		Message: "appointment schedule created, it will be processed soon",
 	}
 }
 
-func NewUpdateAppointmentRequested() *AppointmentCommonResponse {
+func NewAppointmentUpdateRequested() *AppointmentCommonResponse {
 	return &AppointmentCommonResponse{
-		Message: "appointment update requested, access your appointment later to see the status",
+		Message: "appointment update requested, it will be processed soon",
 	}
 }
 
-func NewConfirmedAppointmentRequested() *AppointmentCommonResponse {
+func NewAppointmentConfirmed() *AppointmentCommonResponse {
 	return &AppointmentCommonResponse{
-		Message: "appointment confirmed, the patient will be notified",
+		Message: "appointment confirmed",
 	}
 }
 
-func NewCancelledAppointmentRequested() *AppointmentCommonResponse {
+func NewAppointmentCancelled() *AppointmentCommonResponse {
 	return &AppointmentCommonResponse{
-		Message: "appointment cancelled, the patient will be notified",
+		Message: "appointment cancelled",
 	}
 }
