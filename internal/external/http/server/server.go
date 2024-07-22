@@ -15,9 +15,11 @@ import (
 	list_appointments_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/list_appointments"
 	update_appointment_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/appointment/update_appointment"
 	create_feedback_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/create_feedback"
+	list_feedbacks_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/list_feedbacks"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/config"
 	appointment_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/appointment"
 	event_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/event"
+	feedback_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/feedback"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/confirm_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/create_appointment"
@@ -25,6 +27,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/list_appointments"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/update_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/create_feedback"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/list_feedbacks"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/logger"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/role"
@@ -95,6 +98,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 
 	appointmentRepository := appointment_repository.NewRepository(cache, dbService)
 	eventRepository := event_repository.NewRepository(dbService)
+	feedbackRepository := feedback_repository.NewRepository(dbService)
 
 	return &Server{
 		Config: config,
@@ -107,6 +111,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 
 			AppointmentRepository: appointmentRepository,
 			EventRepository:       eventRepository,
+			FeedbackRepository:    feedbackRepository,
 
 			CreateAppointmentUseCase:  create_appointment_uc.NewUseCase(appointmentTopic, eventRepository, config.ApiConfig.Location),
 			GetAppointmentByIdUseCase: get_appointment_by_id_uc.NewUseCase(appointmentRepository),
@@ -118,6 +123,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			ConfirmAppointmentUseCase: confirm_appointment_uc.NewUseCase(appointmentRepository),
 
 			CreateFeedbackUseCase: create_feedback_uc.NewUseCase(feedbackTopic, appointmentRepository, eventRepository),
+			ListFeedbacksUseCase:  list_feedbacks_uc.NewUseCase(feedbackRepository),
 		},
 	}, nil
 }
@@ -170,6 +176,8 @@ func (s *Server) addAppointmentRoutes(g *echo.Group) {
 
 func (s *Server) addFeedbackRoutes(g *echo.Group) {
 	createFeedbackHandler := create_feedback.NewHandler(s.CreateFeedbackUseCase)
+	listFeedbacksHandler := list_feedbacks.NewHandler(s.ListFeedbacksUseCase)
 
-	g.POST("/appointments/appointmentId/feedbacks", createFeedbackHandler.Handle, role.Middleware(role.Patient))
+	g.POST("/appointments/:appointmentId/feedbacks", createFeedbackHandler.Handle, role.Middleware(role.Patient))
+	g.GET("/appointments/:appointmentId/feedbacks", listFeedbacksHandler.Handle, role.Middleware(role.Any))
 }

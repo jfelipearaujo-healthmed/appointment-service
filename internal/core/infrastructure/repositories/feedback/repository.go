@@ -56,21 +56,21 @@ func (rp *repository) GetByAppointmentID(ctx context.Context, appointmentID uint
 	return feedback, nil
 }
 
-func (rp *repository) List(ctx context.Context, userID uint, roleName role.Role) ([]entities.Feedback, error) {
+func (rp *repository) List(ctx context.Context, userID, appointmentID uint, roleName role.Role) ([]entities.Feedback, error) {
 	tx := rp.dbService.Instance.WithContext(ctx)
 
 	feedbacks := new([]entities.Feedback)
 
-	query := "appointments.patient_id = ?"
+	query := "appointments.patient_id = ? AND appointments.id = ?"
 
 	if roleName == role.Doctor {
-		query = "appointments.doctor_id = ?"
+		query = "appointments.doctor_id = ? AND appointments.id = ?"
 	}
 
 	if err := tx.Preload("Appointment").
 		Order("feedbacks.created_at DESC").
 		Joins("JOIN appointments ON appointments.id = feedbacks.appointment_id").
-		Where(query, userID).
+		Where(query, userID, appointmentID).
 		Find(&feedbacks).Error; err != nil {
 		return nil, err
 	}
