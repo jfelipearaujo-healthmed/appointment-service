@@ -107,7 +107,7 @@ func (rp *repository) Update(ctx context.Context, feedback *entities.Feedback) (
 func (rp *repository) Delete(ctx context.Context, feedbackID uint) error {
 	tx := rp.dbService.Instance.WithContext(ctx)
 
-	if err := tx.Delete(&entities.Appointment{}, "id = ?", feedbackID).Error; err != nil {
+	if err := tx.Delete(&entities.Feedback{}, "id = ?", feedbackID).Error; err != nil {
 		return err
 	}
 

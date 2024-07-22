@@ -1,20 +1,20 @@
-package create_feedback
+package create_medical_report
 
 import (
 	"strconv"
 
-	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/dto/feedback_dto"
-	create_feedback_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/create_feedback"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/dto/medical_report_dto"
+	create_medical_report_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/create_medical_report"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/http_response"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/validator"
 	"github.com/labstack/echo/v4"
 )
 
 type handler struct {
-	useCase create_feedback_contract.UseCase
+	useCase create_medical_report_contract.UseCase
 }
 
-func NewHandler(useCase create_feedback_contract.UseCase) *handler {
+func NewHandler(useCase create_medical_report_contract.UseCase) *handler {
 	return &handler{
 		useCase: useCase,
 	}
@@ -23,7 +23,7 @@ func NewHandler(useCase create_feedback_contract.UseCase) *handler {
 func (h *handler) Handle(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(feedback_dto.CreateFeedbackRequest)
+	req := new(medical_report_dto.CreateMedicalReportRequest)
 	if err := c.Bind(req); err != nil {
 		return http_response.BadRequest(c, "unable to parse the request body", err)
 	}
@@ -39,9 +39,10 @@ func (h *handler) Handle(c echo.Context) error {
 		return http_response.BadRequest(c, "invalid appointment id", err)
 	}
 
-	if err := h.useCase.Execute(ctx, userId, uint(parsedAppointmentId), req); err != nil {
+	medicalReport, err := h.useCase.Execute(ctx, userId, uint(parsedAppointmentId), req)
+	if err != nil {
 		return http_response.HandleErr(c, err)
 	}
 
-	return http_response.Created(c, feedback_dto.NewFeedbackSent())
+	return http_response.Created(c, medical_report_dto.MapFromDomain(medicalReport))
 }
