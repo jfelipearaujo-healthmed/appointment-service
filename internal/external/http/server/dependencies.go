@@ -10,6 +10,7 @@ import (
 	list_appointments_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/list_appointments"
 	update_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/update_appointment"
 	create_feedback_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/create_feedback"
+	list_feedbacks_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/list_feedbacks"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/persistence"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/topic"
@@ -33,4 +34,5 @@ type Dependencies struct {
 	ConfirmAppointmentUseCase confirm_appointment_contract.UseCase
 
 	CreateFeedbackUseCase create_feedback_contract.UseCase
+	ListFeedbacksUseCase  list_feedbacks_contract.UseCase
 }
