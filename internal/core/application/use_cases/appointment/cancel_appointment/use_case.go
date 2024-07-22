@@ -8,10 +8,6 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/role"
 )
 
-const (
-	dateTimeLayout = "2006-01-02 15:04"
-)
-
 type useCase struct {
 	repository appointment_repository_contract.Repository
 }
