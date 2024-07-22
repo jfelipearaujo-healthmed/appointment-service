@@ -27,6 +27,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/list_appointments"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/update_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/create_feedback"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/get_feedback_by_id"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/list_feedbacks"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/logger"
@@ -176,8 +177,10 @@ func (s *Server) addAppointmentRoutes(g *echo.Group) {
 
 func (s *Server) addFeedbackRoutes(g *echo.Group) {
 	createFeedbackHandler := create_feedback.NewHandler(s.CreateFeedbackUseCase)
+	getFeedbackByIdHandler := get_feedback_by_id.NewHandler(s.GetFeedbackByIdUseCase)
 	listFeedbacksHandler := list_feedbacks.NewHandler(s.ListFeedbacksUseCase)
 
 	g.POST("/appointments/:appointmentId/feedbacks", createFeedbackHandler.Handle, role.Middleware(role.Patient))
 	g.GET("/appointments/:appointmentId/feedbacks", listFeedbacksHandler.Handle, role.Middleware(role.Any))
+	g.GET("/appointments/:appointmentId/feedbacks/:feedbackId", getFeedbackByIdHandler.Handle, role.Middleware(role.Any))
 }
