@@ -4,6 +4,7 @@ import (
 	appointment_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/appointment"
 	event_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/event"
 	feedback_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/feedback"
+	cancel_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/cancel_appointment"
 	confirm_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/confirm_appointment"
 	create_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/create_appointment"
 	get_appointment_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/get_appointment_by_id"
@@ -33,6 +34,7 @@ type Dependencies struct {
 	ListAppointmentsUseCase   list_appointments_contract.UseCase
 	UpdateAppointmentUseCase  update_appointment_contract.UseCase
 	ConfirmAppointmentUseCase confirm_appointment_contract.UseCase
+	CancelAppointmentUseCase  cancel_appointment_contract.UseCase
 
 	CreateFeedbackUseCase  create_feedback_contract.UseCase
 	GetFeedbackByIdUseCase get_feedback_by_id_contract.UseCase

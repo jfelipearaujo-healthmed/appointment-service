@@ -1,20 +1,21 @@
-package confirm_appointment
+package cancel_appointment
 
 import (
 	"strconv"
 
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/dto/appointment_dto"
-	confirm_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/confirm_appointment"
+	cancel_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/cancel_appointment"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/http_response"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/validator"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/role"
 	"github.com/labstack/echo/v4"
 )
 
 type handler struct {
-	useCase confirm_appointment_contract.UseCase
+	useCase cancel_appointment_contract.UseCase
 }
 
-func NewHandler(useCase confirm_appointment_contract.UseCase) *handler {
+func NewHandler(useCase cancel_appointment_contract.UseCase) *handler {
 	return &handler{
 		useCase: useCase,
 	}
@@ -23,7 +24,7 @@ func NewHandler(useCase confirm_appointment_contract.UseCase) *handler {
 func (h *handler) Handle(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(appointment_dto.ConfirmAppointmentRequest)
+	req := new(appointment_dto.CancelAppointmentRequest)
 	if err := c.Bind(req); err != nil {
 		return http_response.BadRequest(c, "invalid request body", err)
 	}
@@ -33,6 +34,8 @@ func (h *handler) Handle(c echo.Context) error {
 	}
 
 	userId := c.Get("userId").(uint)
+	roleName := c.Get("role").(string)
+	role := role.GetRoleByName(roleName)
 
 	appointmentId := c.Param("appointmentId")
 	parsedAppointmentId, err := strconv.ParseUint(appointmentId, 10, 64)
@@ -40,15 +43,9 @@ func (h *handler) Handle(c echo.Context) error {
 		return http_response.BadRequest(c, "invalid appointment id", err)
 	}
 
-	if err := h.useCase.Execute(ctx, userId, uint(parsedAppointmentId), req.Confirmed); err != nil {
+	if err := h.useCase.Execute(ctx, userId, uint(parsedAppointmentId), role, req.Reason); err != nil {
 		return http_response.HandleErr(c, err)
 	}
 
-	response := appointment_dto.NewAppointmentConfirmed()
-
-	if !req.Confirmed {
-		response = appointment_dto.NewAppointmentCancelled()
-	}
-
-	return http_response.OK(c, response)
+	return http_response.OK(c, appointment_dto.NewAppointmentCancelled())
 }

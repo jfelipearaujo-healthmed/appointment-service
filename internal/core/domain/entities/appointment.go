@@ -43,3 +43,11 @@ type Appointment struct {
 	EventID    uint `json:"event_id,omitempty"`
 	FeedbackID uint `json:"feedback_id,omitempty"`
 }
+
+func (a *Appointment) Cancel(cancelledBy uint, reason string) {
+	now := time.Now()
+
+	a.CancelledBy = &cancelledBy
+	a.CancelledAt = &now
+	a.CancelledReason = &reason
+}
