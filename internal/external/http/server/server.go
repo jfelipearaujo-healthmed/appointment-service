@@ -18,6 +18,7 @@ import (
 	create_feedback_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/create_feedback"
 	get_feedback_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/get_feedback_by_id"
 	list_feedbacks_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/list_feedbacks"
+	upload_file_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/file/upload_file"
 	create_medical_report_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/create_medical_report"
 	get_medical_report_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/get_medical_report_by_id"
 	list_medical_reports_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/list_medical_reports"
@@ -25,6 +26,7 @@ import (
 	appointment_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/appointment"
 	event_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/event"
 	feedback_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/feedback"
+	file_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/file"
 	medical_report_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/medical_report"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/cancel_appointment"
@@ -36,6 +38,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/create_feedback"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/get_feedback_by_id"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/list_feedbacks"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/file/upload_file"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/create_medical_report"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/get_medical_report_by_id"
@@ -45,6 +48,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/token"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/persistence"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/secret"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/storage"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/topic"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -105,12 +109,25 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 		return nil, err
 	}
 
+	s3Config, err := awsConfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "error getting aws config", "error", err)
+		return nil, err
+	}
+
+	if config.CloudConfig.IsBaseEndpointSet() {
+		s3Config.BaseEndpoint = aws.String("http://s3.localhost.localstack.cloud:4566")
+	}
+
+	fileStorage := storage.NewService(config.CloudConfig.BucketName, s3Config)
+
 	cache := cache.NewRedisCache(ctx, config)
 
 	appointmentRepository := appointment_repository.NewRepository(cache, dbService)
 	eventRepository := event_repository.NewRepository(dbService)
 	feedbackRepository := feedback_repository.NewRepository(dbService)
 	medicalReportRepository := medical_report_repository.NewRepository(dbService)
+	fileRepository := file_repository.NewRepository(dbService)
 
 	return &Server{
 		Config: config,
@@ -121,10 +138,13 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			AppointmentTopic: appointmentTopic,
 			FeedbackTopic:    feedbackTopic,
 
+			FileStorage: fileStorage,
+
 			AppointmentRepository:   appointmentRepository,
 			EventRepository:         eventRepository,
 			FeedbackRepository:      feedbackRepository,
 			MedicalReportRepository: medicalReportRepository,
+			FileRepository:          fileRepository,
 
 			CreateAppointmentUseCase:  create_appointment_uc.NewUseCase(appointmentTopic, eventRepository, config.ApiConfig.Location),
 			GetAppointmentByIdUseCase: get_appointment_by_id_uc.NewUseCase(appointmentRepository),
@@ -143,6 +163,8 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			CreateMedicalReportUseCase: create_medical_report_uc.NewUseCase(appointmentRepository, medicalReportRepository),
 			GetMedialReportByIdUseCase: get_medical_report_by_id_uc.NewUseCase(medicalReportRepository),
 			ListMedicalReportsUseCase:  list_medical_reports_uc.NewUseCase(medicalReportRepository),
+
+			UploadFileUseCase: upload_file_uc.NewUseCase(fileStorage, fileRepository),
 		},
 	}, nil
 }
@@ -170,6 +192,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	s.addAppointmentRoutes(api)
 	s.addFeedbackRoutes(api)
 	s.addMedicalReportRoutes(api)
+	s.addFileRoutes(api)
 
 	return e
 }
@@ -214,4 +237,10 @@ func (s *Server) addMedicalReportRoutes(g *echo.Group) {
 	g.POST("/appointments/:appointmentId/medical-reports", createMedicalReportHandler.Handle, role.Middleware(role.Doctor))
 	g.GET("/appointments/:appointmentId/medical-reports", listMedicalReportsHandler.Handle, role.Middleware(role.Doctor))
 	g.GET("/appointments/:appointmentId/medical-reports/:medicalReportId", getMedicalReportByIdHandler.Handle, role.Middleware(role.Doctor))
+}
+
+func (s *Server) addFileRoutes(g *echo.Group) {
+	uploadFileHandler := upload_file.NewHandler(s.UploadFileUseCase)
+
+	g.POST("/files", uploadFileHandler.Handle, role.Middleware(role.Patient))
 }

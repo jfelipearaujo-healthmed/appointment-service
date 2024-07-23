@@ -7,3 +7,5 @@ awslocal sns create-topic \
 
 awslocal sns create-topic \
     --name FeedbackTopic
+
+echo "SNS topics initialized!"

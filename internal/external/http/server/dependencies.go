@@ -4,6 +4,7 @@ import (
 	appointment_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/appointment"
 	event_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/event"
 	feedback_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/feedback"
+	file_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/file"
 	medical_report_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/medical_report"
 	cancel_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/cancel_appointment"
 	confirm_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/confirm_appointment"
@@ -14,11 +15,13 @@ import (
 	create_feedback_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/create_feedback"
 	get_feedback_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/get_feedback_by_id"
 	list_feedbacks_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/list_feedbacks"
+	upload_file_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/upload_file"
 	create_medical_report_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/create_medical_report"
 	get_medical_report_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/get_medical_report_by_id"
 	list_medical_reports_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/list_medical_reports"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/persistence"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/storage"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/topic"
 )
 
@@ -29,10 +32,13 @@ type Dependencies struct {
 	AppointmentTopic topic.TopicService
 	FeedbackTopic    topic.TopicService
 
+	FileStorage storage.StorageService
+
 	AppointmentRepository   appointment_repository_contract.Repository
 	EventRepository         event_repository_contract.Repository
 	FeedbackRepository      feedback_repository_contract.Repository
 	MedicalReportRepository medical_report_repository_contract.Repository
+	FileRepository          file_repository_contract.Repository
 
 	CreateAppointmentUseCase  create_appointment_contract.UseCase
 	GetAppointmentByIdUseCase get_appointment_by_id_contract.UseCase
@@ -48,4 +54,6 @@ type Dependencies struct {
 	CreateMedicalReportUseCase create_medical_report_contract.UseCase
 	GetMedialReportByIdUseCase get_medical_report_by_id_contract.UseCase
 	ListMedicalReportsUseCase  list_medical_reports_contract.UseCase
+
+	UploadFileUseCase upload_file_contract.UseCase
 }
