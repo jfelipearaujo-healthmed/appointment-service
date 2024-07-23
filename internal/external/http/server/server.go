@@ -18,6 +18,7 @@ import (
 	create_feedback_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/create_feedback"
 	get_feedback_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/get_feedback_by_id"
 	list_feedbacks_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/list_feedbacks"
+	list_files_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/file/list_files"
 	upload_file_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/file/upload_file"
 	create_medical_report_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/create_medical_report"
 	get_medical_report_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/get_medical_report_by_id"
@@ -38,6 +39,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/create_feedback"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/get_feedback_by_id"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/list_feedbacks"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/file/list_files"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/file/upload_file"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/create_medical_report"
@@ -165,6 +167,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			ListMedicalReportsUseCase:  list_medical_reports_uc.NewUseCase(medicalReportRepository),
 
 			UploadFileUseCase: upload_file_uc.NewUseCase(fileStorage, fileRepository),
+			ListFilesUseCase:  list_files_uc.New(fileRepository),
 		},
 	}, nil
 }
@@ -241,6 +244,8 @@ func (s *Server) addMedicalReportRoutes(g *echo.Group) {
 
 func (s *Server) addFileRoutes(g *echo.Group) {
 	uploadFileHandler := upload_file.NewHandler(s.UploadFileUseCase)
+	listFilesHandler := list_files.New(s.ListFilesUseCase)
 
 	g.POST("/files", uploadFileHandler.Handle, role.Middleware(role.Patient))
+	g.GET("/files", listFilesHandler.Handle, role.Middleware(role.Patient))
 }
