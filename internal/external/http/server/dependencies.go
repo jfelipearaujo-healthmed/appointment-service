@@ -5,6 +5,7 @@ import (
 	event_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/event"
 	feedback_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/feedback"
 	file_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/file"
+	file_access_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/file_access"
 	medical_report_repository_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/repositories/medical_report"
 	cancel_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/cancel_appointment"
 	confirm_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/confirm_appointment"
@@ -17,6 +18,7 @@ import (
 	list_feedbacks_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/list_feedbacks"
 	list_files_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/list_files"
 	upload_file_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/upload_file"
+	create_file_access_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file_access/create_file_access"
 	create_medical_report_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/create_medical_report"
 	get_medical_report_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/get_medical_report_by_id"
 	list_medical_reports_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/list_medical_reports"
@@ -40,6 +42,7 @@ type Dependencies struct {
 	FeedbackRepository      feedback_repository_contract.Repository
 	MedicalReportRepository medical_report_repository_contract.Repository
 	FileRepository          file_repository_contract.Repository
+	FileAccessRepository    file_access_repository_contract.Repository
 
 	CreateAppointmentUseCase  create_appointment_contract.UseCase
 	GetAppointmentByIdUseCase get_appointment_by_id_contract.UseCase
@@ -58,4 +61,6 @@ type Dependencies struct {
 
 	UploadFileUseCase upload_file_contract.UseCase
 	ListFilesUseCase  list_files_contract.UseCase
+
+	CreateFileAccessUseCase create_file_access_contract.UseCase
 }
