@@ -39,6 +39,18 @@ func (rp *repository) GetByID(ctx context.Context, userID uint, fileID uint) (*e
 	return file, nil
 }
 
+func (rp *repository) GetByFileIDs(ctx context.Context, fileIDs []uint) ([]entities.File, error) {
+	tx := rp.dbService.Instance.WithContext(ctx)
+
+	files := new([]entities.File)
+
+	if err := tx.Where("id IN (?)", fileIDs).Find(&files).Error; err != nil {
+		return nil, err
+	}
+
+	return *files, nil
+}
+
 func (rp *repository) List(ctx context.Context, userID uint) ([]entities.File, error) {
 	tx := rp.dbService.Instance.WithContext(ctx)
 

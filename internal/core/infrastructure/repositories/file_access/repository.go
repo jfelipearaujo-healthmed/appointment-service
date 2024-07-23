@@ -55,6 +55,18 @@ func (rp *repository) GetByIDForDoctor(ctx context.Context, userID, doctorID, fi
 	return fileAccess, nil
 }
 
+func (rp *repository) GetByAppointmentID(ctx context.Context, appointmentID uint) ([]entities.FileAccess, error) {
+	tx := rp.dbService.Instance.WithContext(ctx)
+
+	fileAccesses := new([]entities.FileAccess)
+
+	if err := tx.Where("appointment_id = ? AND expired_at > NOW()", appointmentID).Find(&fileAccesses).Error; err != nil {
+		return nil, err
+	}
+
+	return *fileAccesses, nil
+}
+
 func (rp *repository) List(ctx context.Context, userID uint) ([]entities.FileAccess, error) {
 	tx := rp.dbService.Instance.WithContext(ctx)
 

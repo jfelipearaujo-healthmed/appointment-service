@@ -11,6 +11,7 @@ import (
 	confirm_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/confirm_appointment"
 	create_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/create_appointment"
 	get_appointment_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/get_appointment_by_id"
+	get_appointment_files_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/get_appointment_files"
 	list_appointments_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/list_appointments"
 	update_appointment_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/update_appointment"
 	create_feedback_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/create_feedback"
@@ -46,12 +47,13 @@ type Dependencies struct {
 	FileRepository          file_repository_contract.Repository
 	FileAccessRepository    file_access_repository_contract.Repository
 
-	CreateAppointmentUseCase  create_appointment_contract.UseCase
-	GetAppointmentByIdUseCase get_appointment_by_id_contract.UseCase
-	ListAppointmentsUseCase   list_appointments_contract.UseCase
-	UpdateAppointmentUseCase  update_appointment_contract.UseCase
-	ConfirmAppointmentUseCase confirm_appointment_contract.UseCase
-	CancelAppointmentUseCase  cancel_appointment_contract.UseCase
+	CreateAppointmentUseCase   create_appointment_contract.UseCase
+	GetAppointmentByIdUseCase  get_appointment_by_id_contract.UseCase
+	ListAppointmentsUseCase    list_appointments_contract.UseCase
+	UpdateAppointmentUseCase   update_appointment_contract.UseCase
+	ConfirmAppointmentUseCase  confirm_appointment_contract.UseCase
+	CancelAppointmentUseCase   cancel_appointment_contract.UseCase
+	GetAppointmentFilesUseCase get_appointment_files_contract.UseCase
 
 	CreateFeedbackUseCase  create_feedback_contract.UseCase
 	GetFeedbackByIdUseCase get_feedback_by_id_contract.UseCase

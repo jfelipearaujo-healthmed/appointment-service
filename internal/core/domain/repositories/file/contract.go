@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	GetByID(ctx context.Context, userID, fileID uint) (*entities.File, error)
+	GetByFileIDs(ctx context.Context, fileIDs []uint) ([]entities.File, error)
 	List(ctx context.Context, userID uint) ([]entities.File, error)
 	Create(ctx context.Context, file *entities.File) (*entities.File, error)
 	Update(ctx context.Context, userID uint, file *entities.File) (*entities.File, error)

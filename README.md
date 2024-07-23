@@ -54,7 +54,7 @@ Legend:
 | ✅         | POST   | `/appointments/{appointmentId}/feedbacks`                         | Add feedback to an appointment via event | Patient        |
 | ✅         | GET    | `/appointments/{appointmentId}/feedbacks`                         | Get feedbacks                            | Doctor/Patient |
 | ✅         | GET    | `/appointments/{appointmentId}/feedbacks/{feedbackId}`            | Get feedback by id                       | Doctor/Patient |
-| 💤         | GET    | `/appointments/{appointmentId}/files`                             | Get all files attached to an appointment | Doctor         |
+| ✅         | GET    | `/appointments/{appointmentId}/files`                             | Get all files attached to an appointment | Doctor         |
 | ✅         | POST   | `/files`                                                          | Update files                             | Patient        |
 | ✅         | GET    | `/files`                                                          | Get all files                            | Patient        |
 | ✅         | GET    | `/files/{fileId}`                                                 | Get a file by id                         | Patient        |
