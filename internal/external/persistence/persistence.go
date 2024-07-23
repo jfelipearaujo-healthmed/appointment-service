@@ -46,6 +46,7 @@ func (svc *DbService) Connect(config *config.Config) error {
 		&entities.Feedback{},
 		&entities.MedicalReport{},
 		&entities.Appointment{},
+		&entities.File{},
 	); err != nil {
 		return err
 	}
