@@ -27,3 +27,13 @@ func MapFromDomain(file *entities.FileAccess) *FileAccessResponse {
 		ExpiresAt: file.ExpiresAt,
 	}
 }
+
+func MapFromDomainSlice(fileAccess []entities.FileAccess) []*FileAccessResponse {
+	mapped := make([]*FileAccessResponse, len(fileAccess))
+
+	for i := range fileAccess {
+		mapped[i] = MapFromDomain(&fileAccess[i])
+	}
+
+	return mapped
+}

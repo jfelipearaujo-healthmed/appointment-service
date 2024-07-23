@@ -59,7 +59,7 @@ Legend:
 | ✅         | GET    | `/files`                                                          | Get all files                            | Patient        |
 | 💤         | GET    | `/files/{fileId}`                                                 | Get a file by id                         | Doctor/Patient |
 | ✅         | POST   | `/files/{fileId}/access`                                          | Create a file access                     | Patient        |
-| 💤         | GET    | `/files/{fileId}/access`                                          | Get all file access                      | Patient        |
+| ✅         | GET    | `/files/{fileId}/access`                                          | Get all file access                      | Patient        |
 | 💤         | GET    | `/files/{fileId}/access/{accessId}`                               | Get a file access by id                  | Patient        |
 | 💤         | PUT    | `/files/{fileId}/access/{accessId}`                               | Update a file access                     | Patient        |
 | ✅         | POST   | `/appointments/{appointmentId}/medical-reports`                   | Create a medical report                  | Doctor         |
