@@ -20,6 +20,7 @@ import (
 	list_feedbacks_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/list_feedbacks"
 	list_files_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/file/list_files"
 	upload_file_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/file/upload_file"
+	create_file_access_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/file_access/create_file_access"
 	create_medical_report_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/create_medical_report"
 	get_medical_report_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/get_medical_report_by_id"
 	list_medical_reports_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/list_medical_reports"
@@ -28,6 +29,7 @@ import (
 	event_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/event"
 	feedback_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/feedback"
 	file_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/file"
+	file_access_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/file_access"
 	medical_report_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/medical_report"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/cache"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/appointment/cancel_appointment"
@@ -41,6 +43,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/list_feedbacks"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/file/list_files"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/file/upload_file"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/file_access/create_file_access"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/create_medical_report"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/get_medical_report_by_id"
@@ -130,6 +133,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 	feedbackRepository := feedback_repository.NewRepository(dbService)
 	medicalReportRepository := medical_report_repository.NewRepository(dbService)
 	fileRepository := file_repository.NewRepository(dbService)
+	fileAccessRepository := file_access_repository.NewRepository(dbService)
 
 	return &Server{
 		Config: config,
@@ -147,6 +151,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			FeedbackRepository:      feedbackRepository,
 			MedicalReportRepository: medicalReportRepository,
 			FileRepository:          fileRepository,
+			FileAccessRepository:    fileAccessRepository,
 
 			CreateAppointmentUseCase:  create_appointment_uc.NewUseCase(appointmentTopic, eventRepository, config.ApiConfig.Location),
 			GetAppointmentByIdUseCase: get_appointment_by_id_uc.NewUseCase(appointmentRepository),
@@ -168,6 +173,11 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 
 			UploadFileUseCase: upload_file_uc.NewUseCase(fileStorage, fileRepository),
 			ListFilesUseCase:  list_files_uc.New(fileRepository),
+
+			CreateFileAccessUseCase: create_file_access_uc.NewUseCase(appointmentRepository,
+				fileRepository,
+				fileAccessRepository,
+				config.ApiConfig.Location),
 		},
 	}, nil
 }
@@ -245,7 +255,9 @@ func (s *Server) addMedicalReportRoutes(g *echo.Group) {
 func (s *Server) addFileRoutes(g *echo.Group) {
 	uploadFileHandler := upload_file.NewHandler(s.UploadFileUseCase)
 	listFilesHandler := list_files.New(s.ListFilesUseCase)
+	createFileAccessHandler := create_file_access.NewHandler(s.CreateFileAccessUseCase)
 
 	g.POST("/files", uploadFileHandler.Handle, role.Middleware(role.Patient))
 	g.GET("/files", listFilesHandler.Handle, role.Middleware(role.Patient))
+	g.POST("/files/:fileId/access", createFileAccessHandler.Handle, role.Middleware(role.Patient))
 }
