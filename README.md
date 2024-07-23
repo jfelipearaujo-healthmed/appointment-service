@@ -61,12 +61,9 @@ Legend:
 | 💤         | GET    | `/files/{fileId}/access`                                          | Get all file access                      | Patient        |
 | 💤         | GET    | `/files/{fileId}/access/{accessId}`                               | Get a file access by id                  | Patient        |
 | 💤         | PUT    | `/files/{fileId}/access/{accessId}`                               | Update a file access                     | Patient        |
-| 💤         | DELETE | `/files/{fileId}/access/{accessId}`                               | Delete a file access                     | Patient        |
 | ✅         | POST   | `/appointments/{appointmentId}/medical-reports`                   | Create a medical report                  | Doctor         |
 | ✅         | GET    | `/appointments/{appointmentId}/medical-reports`                   | Get all medical reports                  | Doctor         |
-| 💤         | GET    | `/appointments/{appointmentId}/medical-reports/{medicalReportId}` | Get a medical report by id               | Doctor         |
-| 💤         | PUT    | `/appointments/{appointmentId}/medical-reports/{medicalReportId}` | Update a medical report                  | Doctor         |
-| 💤         | DELETE | `/appointments/{appointmentId}/medical-reports/{medicalReportId}` | Delete a medical report                  | Doctor         |
+| ✅         | GET    | `/appointments/{appointmentId}/medical-reports/{medicalReportId}` | Get a medical report by id               | Doctor         |
 
 
 # License

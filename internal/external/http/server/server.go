@@ -19,6 +19,7 @@ import (
 	get_feedback_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/get_feedback_by_id"
 	list_feedbacks_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/feedback/list_feedbacks"
 	create_medical_report_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/create_medical_report"
+	get_medical_report_by_id_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/get_medical_report_by_id"
 	list_medical_reports_uc "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/application/use_cases/medical_report/list_medical_reports"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/config"
 	appointment_repository "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/repositories/appointment"
@@ -37,6 +38,7 @@ import (
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/feedback/list_feedbacks"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/health"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/create_medical_report"
+	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/get_medical_report_by_id"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/handlers/medical_report/list_medical_reports"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/logger"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/external/http/middlewares/role"
@@ -139,6 +141,7 @@ func NewServer(ctx context.Context, config *config.Config) (*Server, error) {
 			ListFeedbacksUseCase:   list_feedbacks_uc.NewUseCase(feedbackRepository),
 
 			CreateMedicalReportUseCase: create_medical_report_uc.NewUseCase(appointmentRepository, medicalReportRepository),
+			GetMedialReportByIdUseCase: get_medical_report_by_id_uc.NewUseCase(medicalReportRepository),
 			ListMedicalReportsUseCase:  list_medical_reports_uc.NewUseCase(medicalReportRepository),
 		},
 	}, nil
@@ -205,8 +208,10 @@ func (s *Server) addFeedbackRoutes(g *echo.Group) {
 
 func (s *Server) addMedicalReportRoutes(g *echo.Group) {
 	createMedicalReportHandler := create_medical_report.NewHandler(s.CreateMedicalReportUseCase)
+	getMedicalReportByIdHandler := get_medical_report_by_id.NewHandler(s.GetMedialReportByIdUseCase)
 	listMedicalReportsHandler := list_medical_reports.NewHandler(s.ListMedicalReportsUseCase)
 
 	g.POST("/appointments/:appointmentId/medical-reports", createMedicalReportHandler.Handle, role.Middleware(role.Doctor))
 	g.GET("/appointments/:appointmentId/medical-reports", listMedicalReportsHandler.Handle, role.Middleware(role.Doctor))
+	g.GET("/appointments/:appointmentId/medical-reports/:medicalReportId", getMedicalReportByIdHandler.Handle, role.Middleware(role.Doctor))
 }
