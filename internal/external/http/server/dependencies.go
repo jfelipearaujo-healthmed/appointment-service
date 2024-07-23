@@ -15,6 +15,7 @@ import (
 	create_feedback_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/create_feedback"
 	get_feedback_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/get_feedback_by_id"
 	list_feedbacks_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/list_feedbacks"
+	list_files_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/list_files"
 	upload_file_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/upload_file"
 	create_medical_report_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/create_medical_report"
 	get_medical_report_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/medical_report/get_medical_report_by_id"
@@ -56,4 +57,5 @@ type Dependencies struct {
 	ListMedicalReportsUseCase  list_medical_reports_contract.UseCase
 
 	UploadFileUseCase upload_file_contract.UseCase
+	ListFilesUseCase  list_files_contract.UseCase
 }

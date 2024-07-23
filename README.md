@@ -55,7 +55,7 @@ Legend:
 | ✅         | GET    | `/appointments/{appointmentId}/feedbacks`                         | Get feedbacks                            | Doctor/Patient |
 | ✅         | GET    | `/appointments/{appointmentId}/feedbacks/{feedbackId}`            | Get feedback by id                       | Doctor/Patient |
 | ✅         | POST   | `/files`                                                          | Update files                             | Patient        |
-| 💤         | GET    | `/files`                                                          | Get all files                            | Patient        |
+| ✅         | GET    | `/files`                                                          | Get all files                            | Patient        |
 | 💤         | GET    | `/files/{fileId}`                                                 | Get a file by id                         | Doctor/Patient |
 | 💤         | POST   | `/files/{fileId}/access`                                          | Create a file access                     | Patient        |
 | 💤         | GET    | `/files/{fileId}/access`                                          | Get all file access                      | Patient        |

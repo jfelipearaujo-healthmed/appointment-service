@@ -79,3 +79,8 @@ Content-Transfer-Encoding: binary
 
 <%= File.read('test.pdf') %>
 --WebAppBoundary--
+
+### List Files
+GET {{host}}/api/v1/files
+Content-Type: application/json
+Authorization: Bearer {{tokenPatient}}
