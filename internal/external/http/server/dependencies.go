@@ -16,6 +16,7 @@ import (
 	create_feedback_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/create_feedback"
 	get_feedback_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/get_feedback_by_id"
 	list_feedbacks_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/feedback/list_feedbacks"
+	get_file_by_id_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/get_file_by_id"
 	list_files_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/list_files"
 	upload_file_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file/upload_file"
 	create_file_access_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/file_access/create_file_access"
@@ -60,8 +61,9 @@ type Dependencies struct {
 	GetMedialReportByIdUseCase get_medical_report_by_id_contract.UseCase
 	ListMedicalReportsUseCase  list_medical_reports_contract.UseCase
 
-	UploadFileUseCase upload_file_contract.UseCase
-	ListFilesUseCase  list_files_contract.UseCase
+	UploadFileUseCase  upload_file_contract.UseCase
+	GetFileByIdUseCase get_file_by_id_contract.UseCase
+	ListFilesUseCase   list_files_contract.UseCase
 
 	CreateFileAccessUseCase create_file_access_contract.UseCase
 	ListFileAccessUseCase   list_file_access_contract.UseCase
