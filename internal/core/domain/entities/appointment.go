@@ -41,9 +41,9 @@ type Appointment struct {
 	UpdatedAt time.Time      `json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 
-	EventID         uint `json:"event_id,omitempty" gorm:"default:null"`
-	FeedbackID      uint `json:"feedback_id,omitempty" gorm:"default:null"`
-	MedicalReportID uint `json:"medical_report_id,omitempty" gorm:"default:null"`
+	EventID         *uint `json:"event_id,omitempty" gorm:"default:null"`
+	FeedbackID      *uint `json:"feedback_id,omitempty" gorm:"default:null"`
+	MedicalReportID *uint `json:"medical_report_id,omitempty" gorm:"default:null"`
 }
 
 func (a *Appointment) Cancel(cancelledBy uint, reason string) {

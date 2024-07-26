@@ -47,6 +47,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjE5NzY4O
     "confirmed": true
 }
 
+### Cancel an Appointment
+POST {{host}}/api/v1/appointments/1/cancel
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjIwNDQyNjQsImlzcyI6NSwicm9sZSI6InBhdGllbnQifQ.Wo4eCf05-D5eL00ojZAceoaJsRwGdVI-J1HwcAKKQt8
+
+{
+    "reason": "Out of office"
+}
+
 ### Create a Feedback
 POST {{host}}/api/v1/appointments/1/feedbacks
 Content-Type: application/json
