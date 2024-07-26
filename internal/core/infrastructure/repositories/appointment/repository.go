@@ -16,10 +16,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	cacheKeyPrefix string        = "appointment:%d"
-	ttl            time.Duration = time.Hour * 24
-)
+// const (
+// 	cacheKeyPrefix string        = "appointment:%d"
+// 	ttl            time.Duration = time.Hour * 24
+// )
 
 type repository struct {
 	cache     cache.Cache
@@ -34,28 +34,28 @@ func NewRepository(cache cache.Cache, dbService *persistence.DbService) appointm
 }
 
 func (rp *repository) GetByID(ctx context.Context, userID uint, appointmentID uint, roleName role.Role) (*entities.Appointment, error) {
-	cacheKey := fmt.Sprintf(cacheKeyPrefix, appointmentID)
-	return cache.WithCache(ctx, rp.cache, cacheKey, ttl, func() (*entities.Appointment, error) {
-		tx := rp.dbService.Instance.WithContext(ctx)
+	// cacheKey := fmt.Sprintf(cacheKeyPrefix, appointmentID)
+	// return cache.WithCache(ctx, rp.cache, cacheKey, ttl, func() (*entities.Appointment, error) {
+	tx := rp.dbService.Instance.WithContext(ctx)
 
-		appointment := new(entities.Appointment)
+	appointment := new(entities.Appointment)
 
-		query := "patient_id = ? AND id = ?"
-		if roleName == role.Doctor {
-			query = "doctor_id = ? AND id = ?"
+	query := "patient_id = ? AND id = ?"
+	if roleName == role.Doctor {
+		query = "doctor_id = ? AND id = ?"
+	}
+
+	result := tx.Where(query, userID, appointmentID).First(appointment)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, app_error.New(http.StatusNotFound, fmt.Sprintf("appointment with id %d not found", appointmentID))
 		}
 
-		result := tx.Where(query, userID, appointmentID).First(appointment)
-		if result.Error != nil {
-			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-				return nil, app_error.New(http.StatusNotFound, fmt.Sprintf("appointment with id %d not found", appointmentID))
-			}
+		return nil, result.Error
+	}
 
-			return nil, result.Error
-		}
-
-		return appointment, nil
-	})
+	return appointment, nil
+	//})
 }
 
 func (rp *repository) GetByIDsAndDateTime(ctx context.Context, scheduleID uint, patientID uint, doctorID uint, dateTime time.Time) (*entities.Appointment, error) {
@@ -110,7 +110,7 @@ func (rp *repository) Create(ctx context.Context, appointment *entities.Appointm
 }
 
 func (rp *repository) Update(ctx context.Context, userID uint, appointment *entities.Appointment) (*entities.Appointment, error) {
-	cacheKey := fmt.Sprintf(cacheKeyPrefix, appointment.ID)
+	// cacheKey := fmt.Sprintf(cacheKeyPrefix, appointment.ID)
 
 	tx := rp.dbService.Instance.WithContext(ctx)
 
@@ -118,11 +118,12 @@ func (rp *repository) Update(ctx context.Context, userID uint, appointment *enti
 		return nil, err
 	}
 
-	return cache.WithRefreshCache(ctx, rp.cache, cacheKey, ttl, appointment)
+	// return cache.WithRefreshCache(ctx, rp.cache, cacheKey, ttl, appointment)
+	return appointment, nil
 }
 
 func (rp *repository) Delete(ctx context.Context, userID uint, appointmentID uint) error {
-	cacheKey := fmt.Sprintf(cacheKeyPrefix, appointmentID)
+	// cacheKey := fmt.Sprintf(cacheKeyPrefix, appointmentID)
 
 	tx := rp.dbService.Instance.WithContext(ctx)
 
@@ -130,5 +131,6 @@ func (rp *repository) Delete(ctx context.Context, userID uint, appointmentID uin
 		return err
 	}
 
-	return cache.WithDeleteCache(ctx, rp.cache, cacheKey)
+	// return cache.WithDeleteCache(ctx, rp.cache, cacheKey)
+	return nil
 }
