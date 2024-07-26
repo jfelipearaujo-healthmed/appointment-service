@@ -1,23 +1,24 @@
 # Appointment Service
 
-Service responsible to manage the appointments
+Serviço responsável pela gestão dos agendamentos.
 
-# Local Development
+# Desenvolvimento Local
 
-## Requirements
+## Requisitos
 
-- [Kubernetes](https://kubernetes.io/)
+- [Terraform](https://www.terraform.io/downloads.html)
+- [Terraform Docs](https://github.com/terraform-docs/terraform-docs)
 - [AWS CLI](https://aws.amazon.com/cli/)
 
-## Manual deployment
+## Implantação manual
 
-### Attention
+### Atenção
 
-Before deploying the service, make sure to set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
+Antes de implantar o cluster, certifique-se de definir as variáveis ​​de ambiente `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY`.
 
-Be aware that this process will take a few minutes (~4 minutes) to be completed.
+Esteja ciente de que esse processo levará alguns minutos (~4 minutos) para ser concluído.
 
-To deploy the service manually, run the following commands in order:
+Para implantar o cluster manualmente, execute os seguintes comandos em ordem:
 
 ```bash
 make init
@@ -25,108 +26,101 @@ make check # this will execute fmt, validate and plan
 make apply
 ```
 
-To destroy the service, run the following command:
+Para destruir o cluster, execute o seguinte comando:
 
 ```bash
 make destroy
 ```
 
-## Automated deployment
+## Implantação Automatizada
 
-The automated deployment is triggered by a GitHub Action.
+A implantação automatizada é acionada por uma GitHub Action.
 
-# Endpoints
+# Rotas
 
-Legend:
-- ✅: Development completed
-- 🚧: In progress
-- 💤: Not started
+| Método | Rota                                                              | Descrição                                       | Papel do Usuário |
+| ------ | ----------------------------------------------------------------- | ----------------------------------------------- | ---------------- |
+| POST   | `/appointments`                                                   | Cria uma consulta via evento                    | Paciente         |
+| GET    | `/appointments`                                                   | Obtém todas as consultas                        | Médico/Paciente  |
+| GET    | `/appointments/{appointmentId}`                                   | Obtém uma consulta por ID                       | Médico/Paciente  |
+| PUT    | `/appointments/{appointmentId}`                                   | Atualiza uma consulta                           | Paciente         |
+| POST   | `/appointments/{appointmentId}/confirm`                           | Confirma ou recusa uma consulta                 | Médico           |
+| POST   | `/appointments/{appointmentId}/cancel`                            | Cancela uma consulta                            | Médico/Paciente  |
+| POST   | `/appointments/{appointmentId}/feedbacks`                         | Adiciona feedback a uma consulta via evento     | Paciente         |
+| GET    | `/appointments/{appointmentId}/feedbacks`                         | Obtém feedbacks                                 | Médico/Paciente  |
+| GET    | `/appointments/{appointmentId}/feedbacks/{feedbackId}`            | Obtém feedback por ID                           | Médico/Paciente  |
+| GET    | `/appointments/{appointmentId}/files`                             | Obtém todos os arquivos anexados a uma consulta | Médico           |
+| POST   | `/files`                                                          | Atualiza arquivos                               | Paciente         |
+| GET    | `/files`                                                          | Obtém todos os arquivos                         | Paciente         |
+| GET    | `/files/{fileId}`                                                 | Obtém um arquivo por ID                         | Paciente         |
+| POST   | `/files/{fileId}/access`                                          | Cria um acesso de arquivo                       | Paciente         |
+| GET    | `/files/{fileId}/access`                                          | Obtém todos os acessos de arquivo               | Paciente         |
+| POST   | `/appointments/{appointmentId}/medical-reports`                   | Cria um prontuário médico                       | Médico           |
+| GET    | `/appointments/{appointmentId}/medical-reports`                   | Obtém todos os prontuários médicos              | Médico           |
+| GET    | `/appointments/{appointmentId}/medical-reports/{medicalReportId}` | Obtém um prontuário médico por ID               | Médico           |
 
+# Diagramas
 
-| Completed | Method | Endpoint                                                          | Description                              | User Role      |
-| --------- | ------ | ----------------------------------------------------------------- | ---------------------------------------- | -------------- |
-| ✅         | POST   | `/appointments`                                                   | Create an appointment via event          | Patient        |
-| ✅         | GET    | `/appointments`                                                   | Get all appointments                     | Doctor/Patient |
-| ✅         | GET    | `/appointments/{appointmentId}`                                   | Get an appointment by id                 | Doctor/Patient |
-| ✅         | PUT    | `/appointments/{appointmentId}`                                   | Update an appointment                    | Patient        |
-| ✅         | POST   | `/appointments/{appointmentId}/confirm`                           | Confirm or decline an appointment        | Doctor         |
-| ✅         | POST   | `/appointments/{appointmentId}/cancel`                            | Cancel an appointment                    | Doctor/Patient |
-| ✅         | POST   | `/appointments/{appointmentId}/feedbacks`                         | Add feedback to an appointment via event | Patient        |
-| ✅         | GET    | `/appointments/{appointmentId}/feedbacks`                         | Get feedbacks                            | Doctor/Patient |
-| ✅         | GET    | `/appointments/{appointmentId}/feedbacks/{feedbackId}`            | Get feedback by id                       | Doctor/Patient |
-| ✅         | GET    | `/appointments/{appointmentId}/files`                             | Get all files attached to an appointment | Doctor         |
-| ✅         | POST   | `/files`                                                          | Update files                             | Patient        |
-| ✅         | GET    | `/files`                                                          | Get all files                            | Patient        |
-| ✅         | GET    | `/files/{fileId}`                                                 | Get a file by id                         | Patient        |
-| ✅         | POST   | `/files/{fileId}/access`                                          | Create a file access                     | Patient        |
-| ✅         | GET    | `/files/{fileId}/access`                                          | Get all file access                      | Patient        |
-| ✅         | POST   | `/appointments/{appointmentId}/medical-reports`                   | Create a medical report                  | Doctor         |
-| ✅         | GET    | `/appointments/{appointmentId}/medical-reports`                   | Get all medical reports                  | Doctor         |
-| ✅         | GET    | `/appointments/{appointmentId}/medical-reports/{medicalReportId}` | Get a medical report by id               | Doctor         |
+## Criação de Consulta
 
-# Diagrams
-
-## Create an Appointment
-
-In this diagram, we can see the simplified flow of creating an appointment.
+Neste diagrama, podemos ver o fluxo simplificado de criação de uma consulta.
 
 ![create_appointment](./docs/create_appointment.svg)
 
-## Get Appointments
+## Obtém as Consultas
 
-In this diagram, we can see the simplified flow of getting appointments.
+Neste diagrama, podemos ver o fluxo simplificado de obtenção de consultas.
 
 ![get_appointments](./docs/get_appointments.svg)
 
-## Send Feedback
+## Enviar Feedback
 
-In this diagram, we can see the simplified flow of sending feedbacks.
+Neste diagrama, podemos ver o fluxo simplificado de envio de feedbacks.
 
 ![feedback_appointment](./docs/feedback_appointment.svg)
 
-## Get Feedbacks
+## Obtém Feedbacks
 
-In this diagram, we can see the simplified flow of getting feedbacks.
+Neste diagrama, podemos ver o fluxo simplificado de obtenção de feedbacks.
 
 ![get_feedbacks](./docs/get_feedbacks.svg)
 
-## Confirm or Decline an Appointment
+## Confirmar ou Recusar uma Consulta
 
-In this diagram, we can see the simplified flow of confirming an appointment.
+Neste diagrama, podemos ver o fluxo simplificado de confirmação de uma consulta.
 
 ![confirmation_appointment](./docs/confirmation_appointment.svg)
 
-## Cancel an Appointment
+## Cancelar uma Consulta
 
-In this diagram, we can see the simplified flow of canceling an appointment.
+Neste diagrama, podemos ver o fluxo simplificado de cancelamento de uma consulta.
 
 ![cancel_appointment](./docs/cancel_appointment.svg)
 
-## Upload a File
+## Upload de Arquivo
 
-In this diagram, we can see the simplified flow of uploading a file.
+Neste diagrama, podemos ver o fluxo simplificado de upload de um arquivo.
 
 ![upload_file](./docs/upload_file.svg)
 
-## File Access
+## Acesso de Arquivo
 
-In this diagram, we can see the simplified flow of managing file access.
+Neste diagrama, podemos ver o fluxo simplificado de gerenciamento de acesso de arquivo.
 
 ![file_access](./docs/file_access.svg)
 
-## Get Appointment Files
+## Obtém Arquivos da Consulta
 
-In this diagram, we can see the simplified flow of getting files.
+Neste diagrama, podemos ver o fluxo simplificado de obtenção de arquivos.
 
 ![get_files](./docs/get_files.svg)
 
-## Create a Medical Report
+## Criação de um Prontuário Médico
 
-In this diagram, we can see the simplified flow of creating a medical report.
+Neste diagrama, podemos ver o fluxo simplificado de criação de um prontuário médico.
 
 ![create_medical_report](./docs/create_medical_report.svg)
 
+# Licença
 
-# License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Este projeto é licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.

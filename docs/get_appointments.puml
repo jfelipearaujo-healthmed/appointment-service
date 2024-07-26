@@ -1,21 +1,21 @@
 @startuml get_appointments
 
-title Getting Appointments Flow
+title Obtém Consultas
 
 actor "User" as user
 participant "Appointment Service" as appointment_service
 participant "Database" as database
 
 note over user
-In this example, the user could
-be a **doctor** or a **patient**.
+Neste exemplo, o usuário poderia
+ser um **médico** ou um **paciente**.
 end note
 
 user -> appointment_service: GET /appointments\n(Bearer JWT)
 
 activate appointment_service
-appointment_service -> database: Load the appointments
-database --> appointment_service: Returns the appointments
+appointment_service -> database: Carregar as consultas
+database --> appointment_service: Retorna as consultas
 appointment_service --> user: 200 OK
 deactivate appointment_service
 

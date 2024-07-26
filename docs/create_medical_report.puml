@@ -1,26 +1,26 @@
 @startuml create_medical_report
 
-title Creating an Appointment Flow
+title Criação de Relatório Médico (Prontuario)
 
 actor "User" as user
 participant "Appointment Service" as appointment_service
 participant "Database" as database
 
 note over user
-In this example, the user must
-be a **doctor**.
+Neste exemplo, o usuário deve
+ser um **médico**.
 end note
 
 user -> appointment_service: POST /appointments/{appointmentId}/medical-reports\n(Bearer JWT)
 
 activate appointment_service
-appointment_service -> appointment_service: Validate the medical report\ndetails
-appointment_service -> database: Load the appointment
-database --> appointment_service: Returns the appointment
-appointment_service -> appointment_service: Create a new medical report
-appointment_service -> database: Store the medical report
-database --> appointment_service: Medical report stored
-appointment_service --> user: 201 Created
+appointment_service -> appointment_service: Validar o relatório médico\ndetails
+appointment_service -> database: Carregar a consulta
+database --> appointment_service: Retorna a consulta
+appointment_service -> appointment_service: Criar um novo relatório médico
+appointment_service -> database: Armazenar o relatório médico
+database --> appointment_service: Relatório médico armazenado
+appointment_service --> user: 201 Criado
 deactivate appointment_service
 
 @enduml

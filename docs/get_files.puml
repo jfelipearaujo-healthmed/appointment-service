@@ -7,8 +7,8 @@ participant "Appointment Service" as appointment_service
 participant "Database" as database
 
 note over user
-In this example, the user must
-be a **doctor**.
+Neste exemplo, o usuário deve
+ser um **médico**.
 end note
 
 user -> appointment_service: GET /appointments/{appointmentId}/files\n(Bearer JWT)
@@ -16,15 +16,15 @@ user -> appointment_service: GET /appointments/{appointmentId}/files\n(Bearer JW
 activate appointment_service
 
 note over appointment_service
-The doctor must be authorized to
-access the files for that specific
-appointment.
+O médico deve ser autorizado a
+acessar os arquivos para aquela
+consulta específica.
 end note
 
-appointment_service -> appointment_service: Load files access
-database --> appointment_service: Returns the files access
-appointment_service -> appointment_service: Load the files
-database --> appointment_service: Returns the files
+appointment_service -> appointment_service: Carregar arquivos access
+database --> appointment_service: Retorna os arquivos access
+appointment_service -> appointment_service: Carregar os arquivos
+database --> appointment_service: Retorna os arquivos
 appointment_service --> user: 200 OK
 deactivate appointment_service
 
