@@ -1,6 +1,8 @@
 package list_appointments
 
 import (
+	"log/slog"
+
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/dto/appointment_dto"
 	list_appointments_contract "github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/use_cases/appointment/list_appointments"
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/infrastructure/shared/http_response"
@@ -25,10 +27,14 @@ func (h *handler) Handle(c echo.Context) error {
 	roleName := c.Get("role").(string)
 	role := role.GetRoleByName(roleName)
 
+	slog.InfoContext(ctx, "Listing appointments", "userId", userId, "role", roleName)
+
 	appointment, err := h.useCase.Execute(ctx, userId, role)
 	if err != nil {
 		return http_response.HandleErr(c, err)
 	}
+
+	slog.InfoContext(ctx, "Listing appointments", "appointments", len(appointment))
 
 	return http_response.OK(c, appointment_dto.MapFromDomainSlice(appointment))
 }

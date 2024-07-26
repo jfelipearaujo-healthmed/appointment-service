@@ -2,6 +2,7 @@ package confirm_appointment_uc
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -23,10 +24,14 @@ func NewUseCase(repository appointment_repository_contract.Repository) confirm_a
 }
 
 func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint, confirmed bool) error {
+	slog.InfoContext(ctx, "confirming appointment", "userId", userID, "appointmentId", appointmentID, "confirmed", confirmed)
+
 	appointment, err := uc.repository.GetByID(ctx, userID, appointmentID, role.Doctor)
 	if err != nil {
 		return err
 	}
+
+	slog.InfoContext(ctx, "appointment retrieved", "appointment", appointment)
 
 	if appointment.Status != entities.ScheduleInAnalysis &&
 		appointment.Status != entities.ReScheduleInAnalysis &&
@@ -41,9 +46,11 @@ func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint,
 	now := time.Now()
 
 	if confirmed {
+		slog.InfoContext(ctx, "confirming appointment", "userId", userID, "appointmentId", appointmentID, "confirmed", confirmed)
 		appointment.Status = entities.Confirmed
 		appointment.ConfirmedAt = &now
 	} else {
+		slog.InfoContext(ctx, "declining appointment", "userId", userID, "appointmentId", appointmentID, "confirmed", confirmed)
 		reason := "Doctor does not confirmed this appointment, please reschedule"
 		appointment.Status = entities.Cancelled
 		appointment.CancelledAt = &now
@@ -51,7 +58,13 @@ func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint,
 		appointment.CancelledReason = &reason
 	}
 
-	_, err = uc.repository.Update(ctx, userID, appointment)
+	slog.InfoContext(ctx, "updating appointment", "appointment", appointment)
 
-	return err
+	if _, err := uc.repository.Update(ctx, userID, appointment); err != nil {
+		return err
+	}
+
+	slog.InfoContext(ctx, "appointment updated", "appointment", appointment)
+
+	return nil
 }

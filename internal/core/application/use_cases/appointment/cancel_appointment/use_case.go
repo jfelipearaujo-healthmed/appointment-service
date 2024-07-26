@@ -2,6 +2,7 @@ package cancel_appointment_uc
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/entities"
@@ -24,10 +25,14 @@ func NewUseCase(
 }
 
 func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint, roleName role.Role, reason string) error {
+	slog.InfoContext(ctx, "canceling appointment", "userId", userID, "appointmentId", appointmentID, "role", roleName, "reason", reason)
+
 	appointment, err := uc.repository.GetByID(ctx, userID, appointmentID, roleName)
 	if err != nil {
 		return err
 	}
+
+	slog.InfoContext(ctx, "appointment retrieved", "appointment", appointment)
 
 	if appointment.Status == entities.Cancelled {
 		return app_error.New(http.StatusBadRequest, "appointment is already cancelled")
@@ -35,10 +40,13 @@ func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint,
 
 	appointment.Cancel(userID, reason)
 
-	_, err = uc.repository.Update(ctx, userID, appointment)
-	if err != nil {
+	slog.InfoContext(ctx, "updating appointment", "appointment", appointment)
+
+	if _, err := uc.repository.Update(ctx, userID, appointment); err != nil {
 		return err
 	}
+
+	slog.InfoContext(ctx, "appointment updated", "appointment", appointment)
 
 	return nil
 }

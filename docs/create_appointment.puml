@@ -4,7 +4,7 @@ title Creating an Appointment Flow
 
 actor "User" as user
 participant "Appointment Service" as appointment_service
-queue "Topic" as topic
+queue "Appointment Topic" as topic
 participant "Database" as database
 
 note over user
