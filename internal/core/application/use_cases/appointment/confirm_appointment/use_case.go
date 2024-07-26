@@ -34,6 +34,10 @@ func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint,
 		return app_error.New(http.StatusBadRequest, "appointment is not in schedule or re-schedule status")
 	}
 
+	if appointment.Status == entities.Confirmed {
+		return app_error.New(http.StatusBadRequest, "appointment is already confirmed")
+	}
+
 	now := time.Now()
 
 	if confirmed {

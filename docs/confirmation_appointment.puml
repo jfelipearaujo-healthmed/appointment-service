@@ -16,7 +16,7 @@ user -> appointment_service: POST /appointments/{appointmentId}/confirm\n(Bearer
 activate appointment_service
 appointment_service -> database: Load the appointment
 database --> appointment_service: Returns the appointment
-appointment_service -> appointment_service: Confirm the appointment
+appointment_service -> appointment_service: Confirm or not the appointment
 appointment_service -> database: Save the appointment
 database --> appointment_service: Appointment saved
 appointment_service --> user: 200 OK
