@@ -1,0 +1,27 @@
+@startuml create_appointment
+
+title Creating an Appointment Flow
+
+actor "User" as user
+participant "Appointment Service" as appointment_service
+queue "Topic" as topic
+participant "Database" as database
+
+note over user
+In this example, the user must
+be a **patient**.
+end note
+
+user -> appointment_service: POST /appointments\n(Bearer JWT)
+
+activate appointment_service
+appointment_service -> appointment_service: Validate the appointment\ndetails
+appointment_service -> appointment_service: Create a new appointment event
+appointment_service -> topic: Send an event with\nthe appointment details
+topic --> appointment_service: Return the message ID
+appointment_service -> database: Store the event details
+database --> appointment_service: Event stored
+appointment_service --> user: 201 Created
+deactivate appointment_service
+
+@enduml

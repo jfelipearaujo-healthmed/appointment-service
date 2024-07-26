@@ -13,12 +13,13 @@ func (s Status) String() string {
 }
 
 const (
-	ScheduleInAnalysis   Status = "schedule_in_analysis"
-	ReScheduleInAnalysis Status = "re_schedule_in_analysis"
-	Confirmed            Status = "confirmed"
-	InProgress           Status = "in_progress"
-	Concluded            Status = "concluded"
-	Cancelled            Status = "cancelled"
+	ScheduleInAnalysis     Status = "schedule_in_analysis"
+	ReScheduleInAnalysis   Status = "re_schedule_in_analysis"
+	WaitingForConfirmation Status = "waiting_for_confirmation"
+	Confirmed              Status = "confirmed"
+	InProgress             Status = "in_progress"
+	Concluded              Status = "concluded"
+	Cancelled              Status = "cancelled"
 )
 
 type Appointment struct {
