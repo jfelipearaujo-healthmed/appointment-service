@@ -75,7 +75,10 @@ func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appoint
 		return nil, err
 	}
 
-	if existingEvent != nil {
+	// if the event was not processed yet, we can resend it
+	tolerance := time.Minute * 2
+
+	if existingEvent != nil && existingEvent.CreatedAt.Add(tolerance).Before(time.Now()) {
 		return nil, app_error.New(http.StatusBadRequest, "schedule already requested")
 	}
 
@@ -85,6 +88,15 @@ func (uc *useCase) Execute(ctx context.Context, patientID uint, request *appoint
 	}
 
 	event.MessageID = *messageId
+
+	if existingEvent != nil {
+		event, err = uc.repository.Update(ctx, event)
+		if err != nil {
+			return nil, err
+		}
+
+		return event, nil
+	}
 
 	event, err = uc.repository.Create(ctx, event)
 	if err != nil {
