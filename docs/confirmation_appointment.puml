@@ -1,0 +1,26 @@
+@startuml confirmation_appointment
+
+title Confirming an Appointment Flow
+
+actor "User" as user
+participant "Appointment Service" as appointment_service
+participant "Database" as database
+
+note over user
+In this example, the user must
+be a **doctor**.
+end note
+
+user -> appointment_service: POST /appointments/{appointmentId}/confirm\n(Bearer JWT)
+
+activate appointment_service
+appointment_service -> database: Load the appointment
+database --> appointment_service: Returns the appointment
+appointment_service -> appointment_service: Confirm the appointment
+appointment_service -> database: Save the appointment
+database --> appointment_service: Appointment saved
+appointment_service --> user: 200 OK
+deactivate appointment_service
+
+
+@enduml

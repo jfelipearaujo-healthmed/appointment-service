@@ -29,7 +29,8 @@ func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint,
 	}
 
 	if appointment.Status != entities.ScheduleInAnalysis &&
-		appointment.Status != entities.ReScheduleInAnalysis {
+		appointment.Status != entities.ReScheduleInAnalysis &&
+		appointment.Status != entities.WaitingForConfirmation {
 		return app_error.New(http.StatusBadRequest, "appointment is not in schedule or re-schedule status")
 	}
 
