@@ -1,0 +1,27 @@
+@startuml cancel_appointment
+
+title Cancelling an Appointment Flow
+
+actor "User" as user
+participant "Appointment Service" as appointment_service
+participant "Database" as database
+
+note over user
+In this example, the user could
+be a **doctor** or a **patient**.
+end note
+
+user -> appointment_service: POST /appointments/{appointmentId}/cancel\n(Bearer JWT)
+
+activate appointment_service
+appointment_service -> appointment_service: Must be informed a reason
+appointment_service -> database: Load the appointment
+database --> appointment_service: Returns the appointment
+appointment_service -> appointment_service: Cancel the appointment
+appointment_service -> database: Save the appointment
+database --> appointment_service: Appointment saved
+appointment_service --> user: 200 OK
+deactivate appointment_service
+
+
+@enduml

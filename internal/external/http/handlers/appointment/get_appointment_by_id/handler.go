@@ -1,6 +1,7 @@
 package get_appointment_by_id
 
 import (
+	"log/slog"
 	"strconv"
 
 	"github.com/jfelipearaujo-healthmed/appointment-service/internal/core/domain/dto/appointment_dto"
@@ -33,10 +34,14 @@ func (h *handler) Handle(c echo.Context) error {
 		return http_response.BadRequest(c, "invalid appointment id", err)
 	}
 
+	slog.InfoContext(ctx, "getting appointment by id", "userId", userId, "role", roleName, "appointmentId", appointmentId)
+
 	appointment, err := h.useCase.Execute(ctx, userId, uint(parsedAppointmentId), role)
 	if err != nil {
 		return http_response.HandleErr(c, err)
 	}
+
+	slog.InfoContext(ctx, "appointment by id retrieved", "appointment", appointment)
 
 	return http_response.OK(c, appointment_dto.MapFromDomain(appointment))
 }
