@@ -1,0 +1,31 @@
+@startuml get_files
+
+title Getting Files Flow
+
+actor "User" as user
+participant "Appointment Service" as appointment_service
+participant "Database" as database
+
+note over user
+In this example, the user must
+be a **doctor**.
+end note
+
+user -> appointment_service: GET /appointments/{appointmentId}/files\n(Bearer JWT)
+
+activate appointment_service
+
+note over appointment_service
+The doctor must be authorized to
+access the files for that specific
+appointment.
+end note
+
+appointment_service -> appointment_service: Load files access
+database --> appointment_service: Returns the files access
+appointment_service -> appointment_service: Load the files
+database --> appointment_service: Returns the files
+appointment_service --> user: 200 OK
+deactivate appointment_service
+
+@enduml

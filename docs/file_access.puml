@@ -1,0 +1,31 @@
+@startuml file_access
+
+title Managing File Access Flow
+
+actor "User" as user
+participant "Appointment Service" as appointment_service
+participant "Database" as database
+
+note over user
+In this example, the user must
+be a **patient**.
+end note
+
+user -> appointment_service: POST /files/{fileId}/access\n(Bearer JWT)
+
+activate appointment_service
+
+note over appointment_service
+The patient must inform who (doctor)
+will have access to the file and
+an expiration date.
+end note
+
+appointment_service -> appointment_service: Validate the access\ndetails
+appointment_service -> database: Load the file
+appointment_service -> database: Create a new access
+database --> appointment_service: Save the access
+appointment_service --> user: 201 Created
+deactivate appointment_service
+
+@enduml

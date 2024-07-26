@@ -33,14 +33,14 @@ func (uc *useCase) Execute(ctx context.Context, userID uint, appointmentID uint,
 
 	slog.InfoContext(ctx, "appointment retrieved", "appointment", appointment)
 
+	if appointment.Status == entities.Confirmed {
+		return app_error.New(http.StatusBadRequest, "appointment is already confirmed")
+	}
+
 	if appointment.Status != entities.ScheduleInAnalysis &&
 		appointment.Status != entities.ReScheduleInAnalysis &&
 		appointment.Status != entities.WaitingForConfirmation {
 		return app_error.New(http.StatusBadRequest, "appointment is not in schedule or re-schedule status")
-	}
-
-	if appointment.Status == entities.Confirmed {
-		return app_error.New(http.StatusBadRequest, "appointment is already confirmed")
 	}
 
 	now := time.Now()

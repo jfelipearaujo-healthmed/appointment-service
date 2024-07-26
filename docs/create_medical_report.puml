@@ -1,0 +1,26 @@
+@startuml create_medical_report
+
+title Creating an Appointment Flow
+
+actor "User" as user
+participant "Appointment Service" as appointment_service
+participant "Database" as database
+
+note over user
+In this example, the user must
+be a **doctor**.
+end note
+
+user -> appointment_service: POST /appointments/{appointmentId}/medical-reports\n(Bearer JWT)
+
+activate appointment_service
+appointment_service -> appointment_service: Validate the medical report\ndetails
+appointment_service -> database: Load the appointment
+database --> appointment_service: Returns the appointment
+appointment_service -> appointment_service: Create a new medical report
+appointment_service -> database: Store the medical report
+database --> appointment_service: Medical report stored
+appointment_service --> user: 201 Created
+deactivate appointment_service
+
+@enduml

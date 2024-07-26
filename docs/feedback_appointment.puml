@@ -1,6 +1,6 @@
 @startuml feedback_appointment
 
-title Cancelling an Appointment Flow
+title Sending Feedbacks Flow
 
 actor "User" as user
 participant "Appointment Service" as appointment_service
