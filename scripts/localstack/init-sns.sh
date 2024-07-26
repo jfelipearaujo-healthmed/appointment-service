@@ -3,7 +3,8 @@
 echo "Initializing SNS topics..."
 
 awslocal sns create-topic \
-    --name AppointmentTopic
+    --name AppointmentTopic.fifo \
+    --attributes FifoTopic="true"
 
 awslocal sns create-topic \
     --name FeedbackTopic
