@@ -64,6 +64,68 @@ Legend:
 | ✅         | GET    | `/appointments/{appointmentId}/medical-reports`                   | Get all medical reports                  | Doctor         |
 | ✅         | GET    | `/appointments/{appointmentId}/medical-reports/{medicalReportId}` | Get a medical report by id               | Doctor         |
 
+# Diagrams
+
+## Create an Appointment
+
+In this diagram, we can see the simplified flow of creating an appointment.
+
+![create_appointment](./docs/create_appointment.svg)
+
+## Get Appointments
+
+In this diagram, we can see the simplified flow of getting appointments.
+
+![get_appointments](./docs/get_appointments.svg)
+
+## Send Feedback
+
+In this diagram, we can see the simplified flow of sending feedbacks.
+
+![feedback_appointment](./docs/feedback_appointment.svg)
+
+## Get Feedbacks
+
+In this diagram, we can see the simplified flow of getting feedbacks.
+
+![get_feedbacks](./docs/get_feedbacks.svg)
+
+## Confirm or Decline an Appointment
+
+In this diagram, we can see the simplified flow of confirming an appointment.
+
+![confirmation_appointment](./docs/confirmation_appointment.svg)
+
+## Cancel an Appointment
+
+In this diagram, we can see the simplified flow of canceling an appointment.
+
+![cancel_appointment](./docs/cancel_appointment.svg)
+
+## Upload a File
+
+In this diagram, we can see the simplified flow of uploading a file.
+
+![upload_file](./docs/upload_file.svg)
+
+## File Access
+
+In this diagram, we can see the simplified flow of managing file access.
+
+![file_access](./docs/file_access.svg)
+
+## Get Appointment Files
+
+In this diagram, we can see the simplified flow of getting files.
+
+![get_files](./docs/get_files.svg)
+
+## Create a Medical Report
+
+In this diagram, we can see the simplified flow of creating a medical report.
+
+![create_medical_report](./docs/create_medical_report.svg)
+
 
 # License
 

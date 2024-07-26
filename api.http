@@ -39,9 +39,9 @@ Authorization: Bearer {{tokenPatient}}
 }
 
 ### Confirm an Appointment
-POST {{host}}/api/v1/appointments/1/confirm
+POST {{host}}/api/v1/appointments/2/confirm
 Content-Type: application/json
-Authorization: Bearer {{tokenDoctor}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjE5NzY4ODYsImlzcyI6MSwicm9sZSI6ImRvY3RvciJ9.xiqk6sEhXsk5MOFKnwoBmTDDo2qw9OSn-iKto2TiR4U
 
 {
     "confirmed": true
