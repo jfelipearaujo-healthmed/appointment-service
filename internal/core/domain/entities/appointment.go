@@ -49,6 +49,7 @@ type Appointment struct {
 func (a *Appointment) Cancel(cancelledBy uint, reason string) {
 	now := time.Now()
 
+	a.Status = Cancelled
 	a.CancelledBy = &cancelledBy
 	a.CancelledAt = &now
 	a.CancelledReason = &reason
