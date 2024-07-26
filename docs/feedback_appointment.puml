@@ -1,6 +1,6 @@
 @startuml feedback_appointment
 
-title Sending Feedbacks Flow
+title Envio de Feedback
 
 actor "User" as user
 participant "Appointment Service" as appointment_service
@@ -8,22 +8,22 @@ queue "Feedback Topic" as topic
 participant "Database" as database
 
 note over user
-In this example, the user must
-be a **patient**.
+Neste exemplo, o usuário deve
+ser um **paciente**.
 end note
 
 user -> appointment_service: POST /appointments/{appointmentId}/feedbacks\n(Bearer JWT)
 
 activate appointment_service
-appointment_service -> appointment_service: Must be informed a rating\nand a comment
-appointment_service -> database: Load the appointment
-database --> appointment_service: Returns the appointment
-appointment_service -> appointment_service: Create a new feedback event
-appointment_service -> topic: Send an event with\nthe feedback details
-topic --> appointment_service: Return the message ID
-appointment_service -> database: Store the event details
-database --> appointment_service: Event stored
-appointment_service --> user: 201 Created
+appointment_service -> appointment_service: Deve ser informada uma nota\ne um comentário
+appointment_service -> database: Carregar a consulta
+database --> appointment_service: Retorna a consulta
+appointment_service -> appointment_service: Criar um novo evento de feedback
+appointment_service -> topic: Enviar um evento com\nos detalhes do feedback
+topic --> appointment_service: Retornar o ID da mensagem
+appointment_service -> database: Armazenar os detalhes do evento
+database --> appointment_service: Evento armazenado
+appointment_service --> user: 201 Criado
 deactivate appointment_service
 
 

@@ -1,21 +1,21 @@
 @startuml get_feedbacks
 
-title Getting Feedbacks Flow
+title Obtém Feedbacks
 
 actor "User" as user
 participant "Appointment Service" as appointment_service
 participant "Database" as database
 
 note over user
-In this example, the user could
-be a **doctor** or a **patient**.
+Neste exemplo, o usuário poderia
+ser um **médico** ou um **paciente**.
 end note
 
 user -> appointment_service: GET /appointments/{appointmentId}/feedbacks\n(Bearer JWT)
 
 activate appointment_service
-appointment_service -> database: Load the feedbacks
-database --> appointment_service: Returns the feedbacks
+appointment_service -> database: Carregar os feedbacks
+database --> appointment_service: Retorna os feedbacks
 appointment_service --> user: 200 OK
 deactivate appointment_service
 

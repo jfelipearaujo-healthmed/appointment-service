@@ -1,24 +1,24 @@
 @startuml confirmation_appointment
 
-title Confirming an Appointment Flow
+title Confirmação de Consulta
 
 actor "User" as user
 participant "Appointment Service" as appointment_service
 participant "Database" as database
 
 note over user
-In this example, the user must
-be a **doctor**.
+Neste exemplo, o usuário deve
+ser um **médico**.
 end note
 
 user -> appointment_service: POST /appointments/{appointmentId}/confirm\n(Bearer JWT)
 
 activate appointment_service
-appointment_service -> database: Load the appointment
-database --> appointment_service: Returns the appointment
-appointment_service -> appointment_service: Confirm or not the appointment
-appointment_service -> database: Save the appointment
-database --> appointment_service: Appointment saved
+appointment_service -> database: Carrega a consulta
+database --> appointment_service: Retorna a consulta
+appointment_service -> appointment_service: Confirma ou não a consulta
+appointment_service -> database: Salva a consulta
+database --> appointment_service: Consulta salva
 appointment_service --> user: 200 OK
 deactivate appointment_service
 

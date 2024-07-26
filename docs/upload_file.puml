@@ -8,19 +8,19 @@ collections "File Storage" as file_storage
 participant "Database" as database
 
 note over user
-In this example, the user must
-be a **patient**.
+Neste exemplo, o usuário deve
+ser um **paciente**.
 end note
 
 user -> appointment_service: POST /files\n(Bearer JWT)
 
 activate appointment_service
-appointment_service -> appointment_service: Validate the file\ndetails
-appointment_service -> file_storage: Upload the file
-file_storage --> appointment_service: Returns the file URL
-appointment_service -> database: Store the file details
-database --> appointment_service: File stored
-appointment_service --> user: 201 Created
+appointment_service -> appointment_service: Validar os detalhes do arquivo
+appointment_service -> file_storage: Carregar o arquivo
+file_storage --> appointment_service: Retorna a URL do arquivo
+appointment_service -> database: Armazenar os detalhes do arquivo
+database --> appointment_service: Arquivo armazenado
+appointment_service --> user: 201 Criado
 deactivate appointment_service
 
 @enduml
