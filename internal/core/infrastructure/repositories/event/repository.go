@@ -33,6 +33,16 @@ func (rp *repository) Create(ctx context.Context, event *entities.Event) (*entit
 	return event, nil
 }
 
+func (rp *repository) Update(ctx context.Context, event *entities.Event) (*entities.Event, error) {
+	tx := rp.dbService.Instance.WithContext(ctx)
+
+	if err := tx.Save(event).Error; err != nil {
+		return nil, err
+	}
+
+	return event, nil
+}
+
 func (rp *repository) GetByIDsAndDateTime(ctx context.Context, eventData *entities.Event) (*entities.Event, error) {
 	tx := rp.dbService.Instance.WithContext(ctx)
 

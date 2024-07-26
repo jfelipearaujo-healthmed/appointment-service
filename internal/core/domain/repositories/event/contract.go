@@ -8,5 +8,6 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, event *entities.Event) (*entities.Event, error)
+	Update(ctx context.Context, event *entities.Event) (*entities.Event, error)
 	GetByIDsAndDateTime(ctx context.Context, event *entities.Event) (*entities.Event, error)
 }
