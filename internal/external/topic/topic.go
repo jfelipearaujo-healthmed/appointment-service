@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/google/uuid"
 )
 
 func NewService(topicName string, config aws.Config) TopicService {
@@ -41,8 +42,10 @@ func (svc *Service) Publish(ctx context.Context, data *Message) (*string, error)
 	}
 
 	req := &sns.PublishInput{
-		TopicArn: aws.String(svc.TopicArn),
-		Message:  aws.String(string(body)),
+		TopicArn:               aws.String(svc.TopicArn),
+		Message:                aws.String(string(body)),
+		MessageGroupId:         aws.String(uuid.NewString()),
+		MessageDeduplicationId: aws.String(uuid.NewString()),
 	}
 
 	out, err := svc.client.Publish(ctx, req)

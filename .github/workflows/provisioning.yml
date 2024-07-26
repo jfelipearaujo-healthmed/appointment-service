@@ -86,7 +86,7 @@ jobs:
         run: make k8s-deploy id=${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Update deployment
-        run: kubectl set image deployments/appointment-service appointment-service=jsfelipearaujo/appointment-service:v${{ github.run_number }} -n ns-appointment-service
+        run: kubectl set image deployments/appointment-service appointment-service=jsfelipearaujo/appointment-service:v${{ github.run_number }} -n ns-appointments
 
       - name: Wait for deployment
-        run: kubectl rollout status deployments/appointment-service -n ns-appointment-service
+        run: kubectl rollout status deployments/appointment-service -n ns-appointments

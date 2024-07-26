@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: appointment-service-config
-  namespace: ns-appointment-service
+  namespace: ns-appointments
   labels:
     app: appointment-service
 data:
@@ -10,6 +10,9 @@ data:
   API_ENV_NAME: production
   API_VERSION: v1
   DB_URL: todo
-  DB_URL_SECRET_NAME: db-appointment-service-url-secret
+  DB_URL_SECRET_NAME: db-appointments-url-secret
   CACHE_HOST: todo
-  CACHE_HOST_SECRET_NAME: cache-host-secret
+  CACHE_HOST_SECRET_NAME: healthmed-cache-url-secret
+  AWS_APPOINTMENT_TOPIC_NAME: AppointmentTopic.fifo
+  AWS_FEEDBACK_TOPIC_NAME: ReviewTopic
+  AWS_BUCKET_NAME: appointment-files

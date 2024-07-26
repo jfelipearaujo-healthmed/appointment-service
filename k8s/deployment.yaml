@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: appointment-service
-  namespace: ns-appointment-service
+  namespace: ns-appointments
 spec:
   replicas: 1
   selector:
@@ -18,7 +18,7 @@ spec:
       labels:
         app: appointment-service
     spec:
-      serviceAccountName: sa-appointment-service
+      serviceAccountName: sa-appointments
       containers:
         - name: appointment-service
           image: jsfelipearaujo/appointment-service:latest
